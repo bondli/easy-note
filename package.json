@@ -1,5 +1,5 @@
 {
-  "name": "@bondli/easy-note",
+  "name": "EasyNote",
   "description": "an easy note application",
   "version": "0.0.1",
   "main": "dist/electron/main.js",
@@ -42,6 +42,7 @@
     "lowdb": "^7.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-quill": "^2.0.0",
     "sequelize": "^6.37.3",
     "sqlite3": "^5.1.7",
     "timeago.js": "^4.0.2"
@@ -97,8 +98,9 @@
       "icon": "dist/electron/icons/icon.ico"
     },
     "mac": {
-      "artifactName": "${productName}-mac-${version}.${ext}",
-      "target": "dmg"
+      "artifactName": "${productName}-Mac-${version}.${ext}",
+      "target": "dmg",
+      "icon": "dist/electron/icons/Icon.icns"
     },
     "nsis": {
       "language": 2052,

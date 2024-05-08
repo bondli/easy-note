@@ -29,13 +29,16 @@ let mainWindow: any = null;
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
+    title: 'EasyNote',
     center: true,
     autoHideMenuBar: true,
     resizable: true,
-    width: 1024,
-    height: 576,
+    width: 1200,
+    height: 800,
+    minWidth: 1200,
+    minHeight: 800,
     webPreferences: {
-      webSecurity: false,
+      webSecurity: !app.isPackaged ? false : true,
       // eslint-disable-next-line no-undef
       preload: path.join(__dirname, './preload.js'),
       nodeIntegration: true, // 解决无法使用 require 加载的 bug

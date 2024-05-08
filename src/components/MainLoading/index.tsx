@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 // import { Skeleton, Row, Col } from 'antd';
 import { Spin } from 'antd';
 import style from './index.module.less';
@@ -29,4 +29,4 @@ const MainLoading: React.FC = () => {
   // );
 };
 
-export default MainLoading;
+export default memo(MainLoading);

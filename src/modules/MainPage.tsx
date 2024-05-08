@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Row, Col, Empty } from 'antd';
-import request from '@common/request';
+import React, { memo, useState, useEffect, useCallback } from 'react';
+import { Row, Col } from 'antd';
 import { DataContext } from '@/common/context';
-import { SPLIT_LINE } from '@common/constant';
-import MainLoading from '@components/MainLoading';
+import { SPLIT_LINE, DEFAULT_NOTE } from '@common/constant';
+import request from '@common/request';
 import User from '@components/User';
 import Category from '@components/Category';
 import NoteBook from '@/components/Note';
@@ -20,48 +19,57 @@ type MainPageProps = {
 
 const MainPage: React.FC<MainPageProps> = (props) => {
   const { userInfo } = props;
-  const [loading, setLoading] = useState(true);
+  const [noteList, setNoteList] = useState([]);
   const [topicList, setTopicList] = useState([]);
-  const [currentNote, setCurrentNote] = useState(null);
+  const [currentNote, setCurrentNote] = useState(DEFAULT_NOTE);
+  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [topicCounts, setTopicCpunts] = useState({});
 
-  const getAllTopicList = useCallback(
-    () => {
-      request
-        .get('/topic/getListByStatus', {
-          params: {
-            status: 'undo',
-          },
-        })
-        .then((res) => {
-          setTopicList(res.data);
-        })
-        .catch(() => {
-          setTopicList([]);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    },
-    [setTopicList, setLoading]
-  );
+  // 获取笔记本列表
+  const getNoteList = () => {
+    request
+      .get('/note/list')
+      .then((res) => {
+        setNoteList(res.data);
+      });
+  };
+
+  // 获取代办事项列表
+  const getTopicList = () => {
+    request.get(`/topic/getList?noteId=${currentNote.id}`).then((res) => {
+      setTopicList(res.data);
+    }).catch((err) => {
+      setTopicList([]);
+    });
+  };
+
+  // 获取各种笔记本下代办的数量
+  const getTopicCounts = () => {
+    request.get(`/topic/counts`).then((data) => {
+      setTopicCpunts(data);
+    });
+  };
 
   useEffect(() => {
-    getAllTopicList();
-  }, [getAllTopicList]);
-
-  if (loading) {
-    return <MainLoading />;
-  }
-
-  if (!topicList) {
-    return <Empty />;
-  }
+    getNoteList();
+    getTopicCounts();
+  }, []);
 
   return (
     <DataContext.Provider
       value={{
         currentNote,
         setCurrentNote,
+        noteList,
+        setNoteList,
+        getNoteList,
+        topicList,
+        setTopicList,
+        getTopicList,
+        selectedTopic,
+        setSelectedTopic,
+        topicCounts,
+        getTopicCounts,
       }}
     >
       <Row style={{ width: '100%' }}>
@@ -72,12 +80,16 @@ const MainPage: React.FC<MainPageProps> = (props) => {
         </Col>
         <Col flex="auto">
           <Row style={{ width: '100%' }}>
-            <Col span={12} style={{ height: '100vh', borderRight: SPLIT_LINE }}>
+            <Col span={selectedTopic && selectedTopic.id ? 12 : 24} style={{ height: '100vh', borderRight: SPLIT_LINE }}>
               <TopicList />
             </Col>
-            <Col span={12} style={{ height: '100vh' }}>
-              <TopicDetail />
-            </Col>
+            {
+              selectedTopic && selectedTopic.id ? (
+                <Col span={12} style={{ height: '100vh' }}>
+                  <TopicDetail />
+                </Col>
+              ) : null
+            }
           </Row>
         </Col>
       </Row>
@@ -85,4 +97,4 @@ const MainPage: React.FC<MainPageProps> = (props) => {
   );
 };
 
-export default MainPage;
+export default memo(MainPage);

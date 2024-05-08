@@ -1,0 +1,20 @@
+.ql-toolbar.ql-snow {
+  border: 0 !important;
+  border-bottom: 1px solid rgb(228, 228, 231) !important;
+}
+.ql-container.ql-snow {
+  border: 0 !important;
+  height: 600px;
+  min-height: 600px;
+  overflow-y: scroll;
+}
+.ql-editor ol,
+.ql-editor ul {
+  padding-left: 0px !important;
+}
+.ql-editor ol li:not(.ql-direction-rtl), .ql-editor ul li:not(.ql-direction-rtl) {
+  padding-left: 16px !important;
+}
+.ql-editor .ql-indent-2:not(.ql-direction-rtl) {
+  padding-left: 0px !important;
+}

@@ -1,53 +1,79 @@
-import React from 'react';
-import {
-  InboxOutlined,
-  FileDoneOutlined,
-  FileTextOutlined,
-  RestOutlined,
-} from '@ant-design/icons';
+import React, { memo, useContext } from 'react';
+import { ProductOutlined, FileDoneOutlined, FileTextOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
 import MenuItem from '@components/MenuItem';
+import { DataContext } from '@/common/context';
 import { SPLIT_LINE } from '@/common/constant';
 import style from './index.module.less';
 
-type MenuItem = Required<MenuProps>['items'][number];
+type MenuItemType = Required<MenuProps>['items'][number];
+type noteType = {
+  id: string;
+  name: string;
+  count: number;
+  icon: React.ReactNode;
+  isVirtual?: boolean;
+};
 
 const Category: React.FC = () => {
-  const items: MenuItem[] = [
-    {
-      key: '1',
-      icon: <InboxOutlined />,
-      label: <MenuItem label="所有事项" count={0} />,
-    },
-    {
-      key: '2',
-      icon: <FileTextOutlined />,
-      label: <MenuItem label="今天到期" count={0} />,
-    },
-    {
-      key: '3',
-      icon: <FileDoneOutlined />,
-      label: <MenuItem label="已完成" count={0} />,
-    },
-    {
-      key: '4',
-      icon: <RestOutlined />,
-      label: <MenuItem label="垃圾箱" count={0} />,
-    },
-  ];
+  const { currentNote, setCurrentNote, topicCounts = {} } = useContext(DataContext);
+
+  const noteList: noteType[] = [{
+    id: 'all',
+    name: '所有待办',
+    count: topicCounts.all || 0,
+    icon: <ProductOutlined />,
+  }, {
+    id: 'today',
+    name: '今天到期',
+    count: topicCounts.today || 0,
+    icon: <FileTextOutlined />,
+  }, {
+    id: 'done',
+    name: '已完成',
+    count: topicCounts.done || 0,
+    icon: <FileDoneOutlined />,
+  }, {
+    id: 'trash',
+    name: '垃圾箱',
+    count: topicCounts.deleted || 0,
+    icon: <DeleteOutlined />,
+  }];
+
+  const items: MenuItemType[] = [];
+  noteList.forEach((item) => {
+    items.push({
+      key: item.id,
+      icon: item.icon,
+      label: <MenuItem label={item.name} count={item.count} />,
+    });
+  });
+
+  // 选中一个笔记本
+  const handleSelect = (e) => {
+    const { key } = e;
+    noteList.forEach((item) => {
+      if (item.id == key) {
+        item.isVirtual = true;
+        setCurrentNote(item);
+      }
+    });
+  };
 
   return (
     <div className={style.container} style={{ borderBottom: SPLIT_LINE }}>
       <Menu
-        defaultSelectedKeys={['1']}
+        defaultSelectedKeys={['all']}
+        selectedKeys={[currentNote?.id]}
         mode="inline"
         items={items}
         style={{ borderRight: 0 }}
+        onSelect={handleSelect}
       />
     </div>
   );
 
 };
 
-export default Category;
+export default memo(Category);

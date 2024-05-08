@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { message } from 'antd';
 import Electron from '@common/electron';
 
 // 创建axios实例
@@ -32,8 +31,7 @@ service.interceptors.response.use(
     return res;
   },
   error => {
-    console.log('err' + error); // for debug
-    message.error(error.message);
+    console.log('err:', error); // for debug
     return Promise.reject(error);
   }
 );

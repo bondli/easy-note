@@ -1,44 +1,27 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react';
+import React, { memo, useState, useEffect, useContext } from 'react';
 import { FolderOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Menu, Empty, Popover, Input, message } from 'antd';
-import request from '@common/request';
 import { DataContext } from '@/common/context';
+import request from '@common/request';
 import MenuItem from '@components/MenuItem';
 import styles from './index.module.less';
 
-type MenuItem = Required<MenuProps>['items'][number];
+type MenuItemType = Required<MenuProps>['items'][number];
 
 const NoteBook: React.FC = () => {
-  const { setCurrentNote } = useContext(DataContext);
+  const [messageApi, msgContextHolder] = message.useMessage();
+  const { currentNote, setCurrentNote, noteList, getNoteList } = useContext(DataContext);
   
-  const [noteList, setNoteList] = useState([]);
   const [menus, setMenus] = useState([]);
-  
   const [showNewModal, setShowNewModal] = useState(false);
   const [newNoteName, setNewNoteName] = useState('');
 
-  // 获取笔记本列表
-  const getNoteList = useCallback(
-    () => {
-      request
-        .get('/note/list')
-        .then((res) => {
-          setNoteList(res.data);
-        });
-    },
-    [setNoteList]
-  );
-
   useEffect(() => {
-    getNoteList();
-  }, [getNoteList]);
-
-  useEffect(() => {
-    const menusTemp: MenuItem[] = [];
+    const menusTemp: MenuItemType[] = [];
     noteList.forEach((item) => {
       menusTemp.push({
-        label: <MenuItem label={item.name} count={item.count} />,
+        label: <MenuItem label={item.name} count={item.counts} />,
         key: item.id,
         icon: <FolderOutlined />,
       });
@@ -55,26 +38,40 @@ const NoteBook: React.FC = () => {
   // 提交创建笔记本
   const handleCreateNote = ()=> {
     if (!newNoteName || !newNoteName.length) {
-      message.error('请输入笔记本名称');
+      messageApi.open({
+        type: 'error',
+        content: '请输入笔记本名称',
+      });
       return;
     }
     // 如果当前的笔记本已经达到10个了，不给创建了
     if (noteList.length >= 10) {
-      message.error('最多创建10个笔记本');
+      messageApi.open({
+        type: 'error',
+        content: '最多创建10个笔记本',
+      });
       return;
     }
     request
       .post('/note/create', {
         name: newNoteName,
-      }).then((data) => {
+      }).then(() => {
         setNewNoteName('');
         setShowNewModal(false);
         getNoteList();
-        message.success('创建成功');
+        messageApi.open({
+          type: 'success',
+          content: `创建成功`,
+        });
+      }).catch((err) => {
+        messageApi.open({
+          type: 'error',
+          content: `创建失败：${err.message}`,
+        });
       });
   };
 
-  const handleOpenChange = (open: boolean) => {
+  const handleModalOpenChange = (open: boolean) => {
     setShowNewModal(open);
   };
 
@@ -105,7 +102,7 @@ const NoteBook: React.FC = () => {
           title="新建笔记本"
           trigger="click"
           open={showNewModal}
-          onOpenChange={handleOpenChange}
+          onOpenChange={handleModalOpenChange}
           placement="rightTop"
         >
           <PlusCircleOutlined className={styles.add} />
@@ -114,21 +111,21 @@ const NoteBook: React.FC = () => {
       {
         !noteList || !noteList.length ? (
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="还没有任何笔记本" />
-        ) : null
-      }
-      {
-        noteList.length ? (
+        ) : (
           <Menu
+            defaultSelectedKeys={[]}
+            selectedKeys={[currentNote?.id+'']}
             mode="inline"
             items={menus}
             style={{ borderRight: 0 }}
             onSelect={handleSelect}
           >
           </Menu>
-        ) : null
+        )
       }
+      <div>{msgContextHolder}</div>
     </div>
   );
 };
 
-export default NoteBook;
+export default memo(NoteBook);

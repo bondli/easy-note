@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import style from './index.module.less';
 
 type MenuItemProps = {
@@ -17,4 +17,4 @@ const MenuItem: React.FC<MenuItemProps> = (props) => {
 
 };
 
-export default MenuItem;
+export default memo(MenuItem);

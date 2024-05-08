@@ -1,5 +1,5 @@
 import express from 'express';
-import { createTopic, getTopicInfo, getTopicsByNoteId, getTopicsByTagId, getTopicsByStatus, updateTopic, deleteTopic } from './topic-controller';
+import { createTopic, getTopicInfo, getTopics, getTopicsByTagId, updateTopic, moveTopic, getTopicCounts } from './topic-controller';
 import { createNote, getNoteInfo, getNotes, updateNote, deleteNote } from './note-controller';
 import { createUser, updateUser } from './user-controller';
 import { createTags } from './tag-controller';
@@ -8,11 +8,11 @@ const router = express.Router();
 
 router.post('/topic/add', createTopic);
 router.get('/topic/detail', getTopicInfo);
-router.get('/topic/getListByNoteId', getTopicsByNoteId);
+router.get('/topic/getList', getTopics);
 router.get('/topic/getListByTagId', getTopicsByTagId);
-router.get('/topic/getListByStatus', getTopicsByStatus);
 router.post('/topic/update', updateTopic);
-router.get('/topic/delete', deleteTopic);
+router.post('/topic/move', moveTopic);
+router.get('/topic/counts', getTopicCounts);
 
 router.post('/note/create', createNote);
 router.get('/note/detail', getNoteInfo);

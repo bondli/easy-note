@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { Layout, Space, Input, Button, message } from 'antd';
 import request from '@common/request';
 
@@ -74,4 +74,4 @@ const UserLogin: React.FC<UserLoginProps> = (props) => {
 
 };
 
-export default UserLogin;
+export default memo(UserLogin);
