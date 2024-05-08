@@ -58,7 +58,12 @@ const TopicCard: React.FC<TopicCardProps> = (props) => {
   };
 
   // 去掉html的标签，展示纯文本
-  const displayDesc = desc.replace(/(<([^>]+)>)/ig, "");
+  let displayDesc = !desc ? '该代办事项暂时没有详细信息，等你来添加详细的信息' : desc.replace(/(<([^>]+)>)/ig, "");
+  if (displayDesc.length > 200) {
+    displayDesc = displayDesc.substring(0, 200);
+  }
+  const regex = new RegExp('.{1,40}', 'g');
+  const result = displayDesc.match(regex);
 
   return (
     <Card
@@ -72,7 +77,15 @@ const TopicCard: React.FC<TopicCardProps> = (props) => {
     >
       <div className={style.desc}>
         {
-          displayDesc ? displayDesc.substring(0,100) : '该代办事项暂时没有详细信息，等你来添加详细的信息'
+          selectedTopic?.id ? (
+            result?.map((item, index) => {
+              return (
+                <div key={index}>{item}</div>
+              );
+            })
+          ) : (
+            <span>{displayDesc.substring(0, 50)}</span>
+          )
         }
       </div>
       {/* <div className={style.tagsContainer}></div> */}

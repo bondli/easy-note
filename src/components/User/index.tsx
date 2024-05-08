@@ -1,7 +1,8 @@
-import React, { memo } from 'react';
+import React, { memo, useContext } from 'react';
 import { DownOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Avatar, Dropdown, Button, Space, message } from 'antd';
+import { DataContext } from '@/common/context';
 import { HEADER_HEIGHT, SPLIT_LINE } from '@/common/constant';
 import style from './index.module.less';
 
@@ -13,6 +14,9 @@ type UserProps = {
 };
 
 const User: React.FC<UserProps> = (props) => {
+  const { getTopicList, getTopicCounts, getNoteList } = useContext(DataContext);
+  const [messageApi, msgContextHolder] = message.useMessage();
+
   const { info } = props;
   const { name, avatar } = info;
 
@@ -31,6 +35,17 @@ const User: React.FC<UserProps> = (props) => {
   ];
   const handleMenuClick: MenuProps['onClick'] = (e) => {
     // message.info('Click on menu item.');
+    const { key } = e;
+    if (key === '2') {
+      getTopicCounts();
+      getNoteList();
+      getTopicList();
+      messageApi.open({
+        type: 'success',
+        content: '同步成功',
+      });
+      return;
+    }
   };
   const menuProps = {
     items,
@@ -52,6 +67,7 @@ const User: React.FC<UserProps> = (props) => {
           </Space>
         </Button>
       </Dropdown>
+      <div>{msgContextHolder}</div>
     </div>
   );
 };

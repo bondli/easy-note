@@ -36,6 +36,7 @@
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "dayjs": "^1.11.11",
+    "electron-log": "^5.1.2",
     "electron-store": "^8.2.0",
     "express": "^4.19.2",
     "lodash-es": "^4.17.21",
@@ -95,12 +96,15 @@
       "target": [
         "nsis"
       ],
-      "icon": "dist/electron/icons/icon.ico"
+      "icon": "dist/electron/icons/Icon.ico"
     },
     "mac": {
       "artifactName": "${productName}-Mac-${version}.${ext}",
       "target": "dmg",
-      "icon": "dist/electron/icons/Icon.icns"
+      "icon": "dist/electron/icons/Icon.icns",
+      "entitlements": "dist/electron/entitlements.mac.plist",
+      "entitlementsInherit": "dist/electron/entitlements.mac.plist",
+      "hardenedRuntime": true
     },
     "nsis": {
       "language": 2052,

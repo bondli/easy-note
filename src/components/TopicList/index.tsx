@@ -6,7 +6,7 @@ import TopicCard from './TopicCard';
 import style from './index.module.less';
 
 const TopicList: React.FC = () => {
-  const { currentNote, getNoteList, topicList, getTopicList, setSelectedTopic } = useContext(DataContext);
+  const { currentNote, getNoteList, topicList, getTopicList, getTopicCounts, setSelectedTopic } = useContext(DataContext);
 
   // 当currentNote变化的时候，根据currentNote去获取该笔记本下的所有topic
   useEffect(() => {
@@ -19,6 +19,8 @@ const TopicList: React.FC = () => {
   }, [currentNote]);
 
   const handleNewTopicSuccess = (topic) => {
+    // 刷新查询维度的数字
+    getTopicCounts();
     // 重新拉取note列表
     getNoteList();
     // 重新获取topic列表

@@ -1,10 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import pkg from '../package.json';
 
-window.addEventListener('DOMContentLoaded', () => {
-  console.log('HTML DOMContentLoaded');
-});
-
 contextBridge.exposeInMainWorld('myIpc', {
   send: (channel, args) => {
     return ipcRenderer.send(channel, args);

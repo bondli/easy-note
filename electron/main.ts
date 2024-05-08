@@ -1,7 +1,12 @@
 import * as path from 'path';
 import { app, ipcMain, BrowserWindow, globalShortcut } from 'electron';
+import { fork } from 'child_process';
 import Store from 'electron-store';
-import startServer from './server/index';
+import logger from 'electron-log';
+
+// file position on macOS: ~/Library/Logs/{app name}/main.log
+logger.transports.file.fileName = 'main.log';
+logger.transports.file.level = 'info';
 
 // 数据持久化
 const store = new Store();
@@ -25,9 +30,39 @@ const initIpcRenderer = () => {
 // 定义ipcRenderer监听事件
 initIpcRenderer();
 
+// 启动服务器
+const startNodeServer = () => {
+  const child = fork(path.join(__dirname,'./server/index'), [], {
+    env: {
+      ...process.env,
+      DBPATH: path.join(app.getPath('userData'), './sqlite3/database.db'),
+    },
+  });
+
+  child.on('error', (err) => {
+    logger.info("ERROR: spawn failed! (" + err + ")");
+  });
+
+  child.on('data', (data) => {
+    logger.info('stdout: ' , data);
+  });
+
+  child.on('exit', (code, signal) => {
+    logger.info('exit code : ', code);
+    logger.info('exit signal : ', signal);
+  });
+
+  child.unref();
+  //on parent process exit, terminate child process too.
+  process.on('exit', () => {
+    child.kill();
+  });
+}
+
 let mainWindow: any = null;
 
 const createWindow = () => {
+  startNodeServer();
   mainWindow = new BrowserWindow({
     title: 'EasyNote',
     center: true,
@@ -35,10 +70,10 @@ const createWindow = () => {
     resizable: true,
     width: 1200,
     height: 800,
-    minWidth: 1200,
+    minWidth: 1000,
     minHeight: 800,
     webPreferences: {
-      webSecurity: !app.isPackaged ? false : true,
+      webSecurity: false,
       // eslint-disable-next-line no-undef
       preload: path.join(__dirname, './preload.js'),
       nodeIntegration: true, // 解决无法使用 require 加载的 bug
@@ -52,12 +87,10 @@ const createWindow = () => {
   }
 
   // 关闭 window 时触发下列事件
-  mainWindow.on('closed', function () {
+  mainWindow.on('closed', () => {
     mainWindow = null;
   });
 };
-
-app.setAppUserModelId('com.easynote.react.electron');
 
 // 绑定 ready 方法，当 electron 应用创建成功时，创建一个窗口。
 app.whenReady().then(() => {
@@ -65,9 +98,6 @@ app.whenReady().then(() => {
     mainWindow.webContents.isDevToolsOpened()
       ? mainWindow.webContents.closeDevTools()
       : mainWindow.webContents.openDevTools();
-  });
-  globalShortcut.register('CommandOrControl+Shift+I', () => {
-    console.log('CLOSE DEV TOOLS 关闭默认控制台打开事件1');
   });
 
   createWindow();
@@ -82,11 +112,11 @@ app.whenReady().then(() => {
 
   // eslint-disable-next-line no-undef
   if (process.platform != 'darwin') {
-    mainWindow.setIcon('dist/electron/icons/icon.ico');
+    mainWindow.setIcon('dist/electron/icons/Icon.ico');
   }
 
   // 绑定 activate 方法，当 electron 应用激活时，创建一个窗口。这是为了点击关闭按钮之后从 dock 栏打开。
-  app.on('activate', function () {
+  app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
     }
@@ -98,7 +128,7 @@ app.whenReady().then(() => {
 });
 
 // 绑定关闭方法，当 electron 应用关闭时，退出 electron 。 macos 系统因为具有 dock 栏机制，可选择不退出。
-app.on('window-all-closed', function () {
+app.on('window-all-closed', () => {
   // macOS 中除非用户按下 `Cmd + Q` 显式退出，否则应用与菜单栏始终处于活动状态。
   // eslint-disable-next-line no-undef
   if (process.platform !== 'darwin') {
@@ -121,5 +151,3 @@ if (!gotTheLock) {
     }
   });
 }
-
-startServer();

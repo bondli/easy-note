@@ -1,5 +1,6 @@
-import React, { memo, useState, useEffect, useCallback } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import { Row, Col } from 'antd';
+import { throttle } from 'lodash-es';
 import { DataContext } from '@/common/context';
 import { SPLIT_LINE, DEFAULT_NOTE } from '@common/constant';
 import request from '@common/request';
@@ -24,6 +25,8 @@ const MainPage: React.FC<MainPageProps> = (props) => {
   const [currentNote, setCurrentNote] = useState(DEFAULT_NOTE);
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [topicCounts, setTopicCpunts] = useState({});
+
+  const [showLeftPanel, setShowLeftPanel] = useState(true);
 
   // 获取笔记本列表
   const getNoteList = () => {
@@ -50,9 +53,25 @@ const MainPage: React.FC<MainPageProps> = (props) => {
     });
   };
 
+  // 控制显隐
+  const toggleShowLeftPanel = () => {
+    if (window.innerWidth < 1200) {
+      setShowLeftPanel(false);
+    } else {
+      setShowLeftPanel(true);
+    }
+  };
+
   useEffect(() => {
     getNoteList();
     getTopicCounts();
+
+    // 监听窗口的变化
+    window.onresize = throttle(() => {
+      toggleShowLeftPanel();
+    }, 500);
+
+    toggleShowLeftPanel();
   }, []);
 
   return (
@@ -73,7 +92,7 @@ const MainPage: React.FC<MainPageProps> = (props) => {
       }}
     >
       <Row style={{ width: '100%' }}>
-        <Col flex="208px" style={{ height: '100vh', borderRight: SPLIT_LINE }}>
+        <Col flex="208px" style={{ height: '100vh', borderRight: SPLIT_LINE, display: showLeftPanel ? '' : 'none'}}>
           <User info={userInfo} />
           <Category />
           <NoteBook />
