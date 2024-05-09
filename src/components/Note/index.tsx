@@ -44,11 +44,11 @@ const NoteBook: React.FC = () => {
       });
       return;
     }
-    // 如果当前的笔记本已经达到10个了，不给创建了
-    if (noteList.length >= 10) {
+    // 如果当前的笔记本已经达到20个了，不给创建了
+    if (noteList.length >= 20) {
       messageApi.open({
         type: 'error',
-        content: '最多创建10个笔记本',
+        content: '最多创建20个笔记本',
       });
       return;
     }
@@ -96,7 +96,7 @@ const NoteBook: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.title}>
-        <span>笔记本</span>
+        <span>笔记本<em className={styles.titleTips}>[{noteList.length}/20]</em></span>
         <Popover
           content={createNoteForm}
           title="新建笔记本"
@@ -117,6 +117,7 @@ const NoteBook: React.FC = () => {
             selectedKeys={[currentNote?.id+'']}
             mode="inline"
             items={menus}
+            className={styles.menuContainer}
             style={{ borderRight: 0 }}
             onSelect={handleSelect}
           >

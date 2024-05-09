@@ -69,9 +69,9 @@ const createWindow = () => {
     autoHideMenuBar: true,
     resizable: true,
     width: 1200,
-    height: 800,
-    minWidth: 1000,
-    minHeight: 800,
+    height: 700,
+    minWidth: 800,
+    minHeight: 600,
     webPreferences: {
       webSecurity: false,
       // eslint-disable-next-line no-undef

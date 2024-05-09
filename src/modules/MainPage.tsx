@@ -10,6 +10,8 @@ import NoteBook from '@/components/Note';
 import TopicList from '@components/TopicList';
 import TopicDetail from '@components/TopicDetail';
 
+import style from './MainPage.module.less';
+
 type MainPageProps = {
   userInfo: {
     id: number;
@@ -55,7 +57,7 @@ const MainPage: React.FC<MainPageProps> = (props) => {
 
   // 控制显隐
   const toggleShowLeftPanel = () => {
-    if (window.innerWidth < 1200) {
+    if (window.innerWidth < 1000) {
       setShowLeftPanel(false);
     } else {
       setShowLeftPanel(true);
@@ -91,25 +93,27 @@ const MainPage: React.FC<MainPageProps> = (props) => {
         getTopicCounts,
       }}
     >
-      <Row style={{ width: '100%' }}>
-        <Col flex="208px" style={{ height: '100vh', borderRight: SPLIT_LINE, display: showLeftPanel ? '' : 'none'}}>
+      <Row className={style.container}>
+        <Col flex="208px" className={style.left} style={{ borderRight: SPLIT_LINE, display: showLeftPanel ? '' : 'none'}}>
           <User info={userInfo} />
           <Category />
           <NoteBook />
         </Col>
         <Col flex="auto">
-          <Row style={{ width: '100%' }}>
-            <Col span={selectedTopic && selectedTopic.id ? 12 : 24} style={{ height: '100vh', borderRight: SPLIT_LINE }}>
-              <TopicList />
-            </Col>
-            {
-              selectedTopic && selectedTopic.id ? (
-                <Col span={12} style={{ height: '100vh' }}>
-                  <TopicDetail />
-                </Col>
-              ) : null
-            }
-          </Row>
+          <table className={style.right} style={{ width: showLeftPanel ? '' : '100%' }}>
+            <tr>
+              <td style={{ width: selectedTopic && selectedTopic.id ? '50%' : '100%', height: '100vh' }}>
+                <TopicList />
+              </td>
+              {
+                selectedTopic && selectedTopic.id ? (
+                  <td style={{ width: '50%', height: '100vh', borderLeft: SPLIT_LINE }}>
+                    <TopicDetail />
+                  </td>
+                ) : null
+              }
+            </tr>
+          </table>
         </Col>
       </Row>
     </DataContext.Provider>

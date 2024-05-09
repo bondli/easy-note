@@ -18,7 +18,7 @@ const Article: React.FC<ArticleProps> = (props) => {
   // 内容输入，直接更新
   const handleChange = debounce((value: string) => {
     saveArticleChange(value);
-  }, 1500);
+  }, 1000);
 
   // 提交服务端修改内容
   const saveArticleChange = (value) => {

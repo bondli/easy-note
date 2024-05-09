@@ -62,8 +62,6 @@ const TopicCard: React.FC<TopicCardProps> = (props) => {
   if (displayDesc.length > 200) {
     displayDesc = displayDesc.substring(0, 200);
   }
-  const regex = new RegExp('.{1,40}', 'g');
-  const result = displayDesc.match(regex);
 
   return (
     <Card
@@ -77,15 +75,7 @@ const TopicCard: React.FC<TopicCardProps> = (props) => {
     >
       <div className={style.desc}>
         {
-          selectedTopic?.id ? (
-            result?.map((item, index) => {
-              return (
-                <div key={index}>{item}</div>
-              );
-            })
-          ) : (
-            <span>{displayDesc.substring(0, 50)}</span>
-          )
+          displayDesc
         }
       </div>
       {/* <div className={style.tagsContainer}></div> */}

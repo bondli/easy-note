@@ -30,9 +30,10 @@
 
 .listContainer {
   width: 100%;
-  height: calc(100% - 50px);
-  overflow: scroll;
-  padding: 16px;
+  height: calc(100vh - 50px);
+  overflow-y: scroll;
+  scrollbar-width: none;
+  padding: 16px 16px 0 16px;
   box-sizing: border-box;
 }
 .cardContainer {
@@ -56,6 +57,8 @@
     color: #71717a;
     font-size: 12px;
     display: inline;
+    word-break: break-all;
+    overflow-wrap: break-word;
   }
   .tagsContainer {
     width: 100%;
