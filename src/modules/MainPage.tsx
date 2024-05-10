@@ -101,18 +101,20 @@ const MainPage: React.FC<MainPageProps> = (props) => {
         </Col>
         <Col flex="auto">
           <table className={style.right} style={{ width: showLeftPanel ? '' : '100%' }}>
-            <tr>
-              <td style={{ width: selectedTopic && selectedTopic.id ? '50%' : '100%', height: '100vh' }}>
-                <TopicList />
-              </td>
-              {
-                selectedTopic && selectedTopic.id ? (
-                  <td style={{ width: '50%', height: '100vh', borderLeft: SPLIT_LINE }}>
-                    <TopicDetail />
-                  </td>
-                ) : null
-              }
-            </tr>
+            <tbody>
+              <tr>
+                <td style={{ width: selectedTopic && selectedTopic.id ? '50%' : '100%', height: '100vh' }}>
+                  <TopicList />
+                </td>
+                {
+                  selectedTopic && selectedTopic.id ? (
+                    <td style={{ width: '50%', height: '100vh', borderLeft: SPLIT_LINE }}>
+                      <TopicDetail />
+                    </td>
+                  ) : null
+                }
+              </tr>
+            </tbody>
           </table>
         </Col>
       </Row>

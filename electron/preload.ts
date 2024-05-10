@@ -1,33 +1,38 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import pkg from '../package.json';
 
-contextBridge.exposeInMainWorld('myIpc', {
-  send: (channel, args) => {
-    return ipcRenderer.send(channel, args);
-  },
-  on: (channel, listener) => {
-    ipcRenderer.on(channel, (event, args) => listener(args));
-  },
-  exit: () => {
-    console.log('destroy');
-    ipcRenderer.send('destroy');
-  },
-  getVersion: () => pkg['version'],
-});
-
+/*
+ * 导出给到渲染进程可以使用的bridge
+ * 渲染进程中的调用示例代码：
+ * const win: any = window;
+ * const ipcRenderer = win.electron?.ipcRenderer;
+ * ipcRenderer.exportData();
+ */
 contextBridge.exposeInMainWorld('electron', {
   ipcRenderer: {
+    // 写缓存
     setStoreValue: (key, value) => {
       ipcRenderer.send('setStore', key, value);
     },
 
+    // 读缓存
     getStoreValue(key) {
       const resp = ipcRenderer.sendSync('getStore', key);
       return resp;
     },
 
+    // 删除缓存
     deleteStore(key) {
       ipcRenderer.send('deleteStore', key);
+    },
+
+    // 导出数据
+    exportData() {
+      ipcRenderer.send('export-data');
+    },
+
+    // 导入数据
+    importData() {
+      ipcRenderer.send('import-data');
     },
   },
 });

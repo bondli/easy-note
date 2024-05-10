@@ -2,6 +2,8 @@
  * Eletron.js
  * 封装了 web 与 electron 的通信
  */
+
+const win: any = window;
 export default class Electron {
   static isInElectron() {
     return navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;
@@ -9,25 +11,25 @@ export default class Electron {
 
   static setStore(key, value) {
     if (!this.isInElectron()) {
-      window.localStorage.setItem(key, value);
+      win.localStorage.setItem(key, value);
       return;
     }
-    window.electron?.ipcRenderer?.setStoreValue(key, value);
+    win.electron?.ipcRenderer?.setStoreValue(key, value);
   }
 
   static getStore(key) {
     if (!this.isInElectron()) {
-      return window.localStorage.getItem(key);
+      return win.localStorage.getItem(key);
     }
-    return window.electron?.ipcRenderer?.getStoreValue(key);
+    return win.electron?.ipcRenderer?.getStoreValue(key);
   }
 
   static deleteStore(key) {
     if (!this.isInElectron()) {
-      window.localStorage.removeItem(key);
+      win.localStorage.removeItem(key);
       return;
     }
-    window.electron?.ipcRenderer?.deleteStore(key);
+    win.electron?.ipcRenderer?.deleteStore(key);
   }
 
   // 保存登录的用户信息
@@ -35,6 +37,7 @@ export default class Electron {
     this.setStore('loginData', data);
   }
 
+  // 获取用户的登录信息
   static getLoginData() {
     return this.getStore('loginData');
   }
@@ -42,6 +45,22 @@ export default class Electron {
   // 删除登录的用户信息
   static deleteLoginData() {
     this.deleteStore('loginData');
+  }
+
+  // 导出数据
+  static exportData() {
+    if (!this.isInElectron()) {
+      return;
+    }
+    win.electron?.ipcRenderer?.exportData();
+  }
+
+  // 导入数据
+  static importData () {
+    if (!this.isInElectron()) {
+      return;
+    }
+    win.electron?.ipcRenderer?.importData();
   }
 
 }

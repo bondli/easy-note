@@ -20,7 +20,7 @@ type TopicCardProps = {
 
 const TopicCard: React.FC<TopicCardProps> = (props) => {
   const { data } = props;
-  const { id, desc, createdAt, deadline } = data;
+  const { id, desc, createdAt } = data;
 
   const { selectedTopic, setSelectedTopic, getTopicList } = useContext(DataContext);
 

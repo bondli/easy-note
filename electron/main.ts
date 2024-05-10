@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import * as path from 'path';
 import { app, ipcMain, BrowserWindow, globalShortcut } from 'electron';
 import { fork } from 'child_process';
@@ -24,6 +25,34 @@ const initIpcRenderer = () => {
   ipcMain.on('deleteStore', (_, key) => {
     store.delete(key);
     _.returnValue = '';
+  });
+
+  // 导出数据库
+  ipcMain.on('export-data', () => {
+    const filePath = path.join(app.getPath('downloads'), './easynote-database.db');
+    const fileToDownload = path.join(app.getPath('userData'), './sqlite3/database.db');
+
+    // 从用户数据目录拷贝文件到下载路径
+    try {
+      fs.copyFileSync(fileToDownload, filePath);
+      logger.info('database copyed to downloads directory');
+    } catch(err) {
+      logger.error(err);
+    }
+  });
+
+  // 导入数据库
+  ipcMain.on('import-data', () => {
+    const filePath = path.join(app.getPath('downloads'), './easynote-database.db');
+    const fileToUploadload = path.join(app.getPath('userData'), './sqlite3/database.db');
+
+    // 从用户数据目录拷贝文件到下载路径
+    try {
+      fs.copyFileSync(filePath, fileToUploadload);
+      logger.info('database copyed to application data directory');
+    } catch(err) {
+      logger.error(err);
+    }
   });
 };
 
@@ -69,7 +98,7 @@ const createWindow = () => {
     autoHideMenuBar: true,
     resizable: true,
     width: 1200,
-    height: 700,
+    height: 720,
     minWidth: 800,
     minHeight: 600,
     webPreferences: {

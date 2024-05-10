@@ -22,7 +22,7 @@ export const getNoteInfo = async (req: Request, res: Response) => {
     if (result) {
       res.json(result.toJSON());
     } else {
-      res.status(404).json({ error: 'Notebook not found' });
+      res.json({ error: 'Notebook not found' });
     }
   } catch (error) {
     console.error('Error getting notebook by ID:', error);
@@ -58,7 +58,7 @@ export const updateNote = async (req: Request, res: Response) => {
       await result.update({ icon, name, orders });
       res.json(result.toJSON());
     } else {
-      res.status(404).json({ error: 'notebook not found' });
+      res.json({ error: 'notebook not found' });
     }
   } catch (error) {
     console.error('Error updating notebook:', error);
@@ -75,7 +75,7 @@ export const deleteNote = async (req: Request, res: Response) => {
       await result.destroy();
       res.json({ message: 'notebook deleted successfully' });
     } else {
-      res.status(404).json({ error: 'notebook not found' });
+      res.json({ error: 'notebook not found' });
     }
   } catch (error) {
     console.error('Error deleting notebook:', error);

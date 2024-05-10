@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState } from 'react';
+import React, { memo, useContext, useState, useRef } from 'react';
 import { Input, message } from 'antd';
 import dayjs from 'dayjs';
 import { format as timeAgoFormat } from 'timeago.js';
@@ -17,10 +17,15 @@ const Title: React.FC<TitleProps> = (props) => {
   const [messageApi, msgContextHolder] = message.useMessage();
 
   const [showEditTitle, setShowEditTitle] = useState(false);
+  const inputRef = useRef(null);
 
   // 设标题输入框出现
   const handleEditTitle = () => {
     setShowEditTitle(true);
+    setTimeout(() => {
+      inputRef?.current?.focus();
+      inputRef?.current?.select();
+    }, 200);
   };
 
   // 提交服务端修改标题
@@ -53,6 +58,7 @@ const Title: React.FC<TitleProps> = (props) => {
         showEditTitle ? (
           <div className={style.left}>
             <Input
+              ref={inputRef}
               placeholder="请输入标题"
               defaultValue={selectedTopic.title}
               onPressEnter={saveTitleChange}

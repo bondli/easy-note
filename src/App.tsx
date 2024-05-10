@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Electron from '@common/electron';
-import UserLogin from '@modules/UserLogin';
+import UserPage from '@/modules/UserPage';
 import MainPage from '@modules/MainPage';
 
 type LoginData = {
@@ -28,7 +28,7 @@ const App: React.FC = () => {
   };
 
   if (!userInfo || !userInfo.id) {
-    return <UserLogin callback={handleLogin} />;
+    return <UserPage callback={handleLogin} />;
   }
 
   return <MainPage userInfo={userInfo} />;

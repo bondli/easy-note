@@ -1,7 +1,8 @@
 import express from 'express';
+import { noteNumsFixed } from './common-controller';
 import { createTopic, getTopicInfo, getTopics, getTopicsByTagId, updateTopic, moveTopic, getTopicCounts } from './topic-controller';
 import { createNote, getNoteInfo, getNotes, updateNote, deleteNote } from './note-controller';
-import { createUser, updateUser } from './user-controller';
+import { createUser, userLogin, updateUser } from './user-controller';
 import { createTags } from './tag-controller';
 
 const router = express.Router();
@@ -20,9 +21,12 @@ router.get('/note/list', getNotes);
 router.post('/note/update', updateNote);
 router.get('/note/delete', deleteNote);
 
-router.post('/user/init', createUser);
+router.post('/user/register', createUser);
+router.post('/user/login', userLogin);
 router.post('/user/update', updateUser);
 
-router.post('tags/add', createTags);
+router.post('/tags/add', createTags);
+
+router.get('/common/fixeddb', noteNumsFixed);
 
 export default router;

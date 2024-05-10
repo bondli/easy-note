@@ -35,7 +35,7 @@ export const getTopicInfo = async (req: Request, res: Response) => {
     if (result) {
       res.json(result.toJSON());
     } else {
-      res.status(404).json({ error: 'Topic not found' });
+      res.json({ error: 'Topic not found' });
     }
   } catch (error) {
     console.error('Error getting topic by ID:', error);
@@ -45,9 +45,12 @@ export const getTopicInfo = async (req: Request, res: Response) => {
 
 // 查询代办列表
 export const getTopics = async (req: Request, res: Response) => {
+  const userId = req.headers['x-user-id'];
   try {
     const { noteId } = req.query;
-    const where = {};
+    const where = {
+      userId,
+    };
     // 所有代办
     if (noteId === 'all') {
       where['status'] = 'undo';
@@ -133,7 +136,7 @@ export const updateTopic = async (req: Request, res: Response) => {
       }
       res.json(result.toJSON());
     } else {
-      res.status(404).json({ error: 'topic not found' });
+      res.json({ error: 'topic not found' });
     }
   } catch (error) {
     console.error('Error updating topic:', error);
@@ -171,7 +174,7 @@ export const moveTopic = async (req: Request, res: Response) => {
       }
       res.json(result.toJSON());
     } else {
-      res.status(404).json({ error: 'topic not found' });
+      res.json({ error: 'topic not found' });
     }
   }
   catch(error) {
@@ -182,9 +185,11 @@ export const moveTopic = async (req: Request, res: Response) => {
 
 // 获取虚拟笔记本下的代办数量
 export const getTopicCounts = async(req: Request, res: Response) => {
+  const userId = req.headers['x-user-id'];
   try {
     const allTopicCount = await Topic.count({
       where: {
+        userId,
         status: {
           [Op.eq]: 'undo'
         }
@@ -192,6 +197,7 @@ export const getTopicCounts = async(req: Request, res: Response) => {
     });
     const doneTopicCount = await Topic.count({
       where: {
+        userId,
         status: {
           [Op.eq]: 'done'
         }
@@ -199,6 +205,7 @@ export const getTopicCounts = async(req: Request, res: Response) => {
     });
     const deletedTopicCount = await Topic.count({
       where: {
+        userId,
         status: {
           [Op.eq]: 'deleted'
         }
@@ -206,6 +213,7 @@ export const getTopicCounts = async(req: Request, res: Response) => {
     });
     const todayDeadline = await Topic.count({
       where: {
+        userId,
         deadline: {
           [Op.lt]: new Date(),
           [Op.gt]: new Date(new Date().getMilliseconds() - 24 * 60 * 60 * 1000)
