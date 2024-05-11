@@ -8,7 +8,7 @@ import style from './index.module.less';
 const TopicList: React.FC = () => {
   const { currentNote, getNoteList, topicList, getTopicList, getTopicCounts, setSelectedTopic } = useContext(DataContext);
 
-  // 当currentNote变化的时候，根据currentNote去获取该笔记本下的所有topic
+  // 当前选中的笔记本发现变化的时候，根据currentNote去获取该笔记本下的所有topic
   useEffect(() => {
     getTopicList();
   }, [currentNote]);
@@ -18,6 +18,7 @@ const TopicList: React.FC = () => {
     setSelectedTopic(null);
   }, [currentNote]);
 
+  // 新增代办成功的回调
   const handleNewTopicSuccess = (topic) => {
     // 刷新查询维度的数字
     getTopicCounts();

@@ -18,6 +18,13 @@ type TopicCardProps = {
   data: TopicCardData;
 };
 
+const color = {
+  1: 'error',
+  2: 'warning',
+  3: 'default',
+  4: 'processing',
+};
+
 const TopicCard: React.FC<TopicCardProps> = (props) => {
   const { data } = props;
   const { id, desc, createdAt } = data;
@@ -25,15 +32,9 @@ const TopicCard: React.FC<TopicCardProps> = (props) => {
   const { selectedTopic, setSelectedTopic, getTopicList } = useContext(DataContext);
 
   const handleClick = () => {
-    setSelectedTopic(data);
+    // console.log('changeTopic:', data);
     getTopicList(); // 刷新列表数据
-  };
-
-  const color = {
-    1: 'error',
-    2: 'warning',
-    3: 'default',
-    4: 'processing',
+    setSelectedTopic(data);
   };
 
   const titleContent = (data) => {

@@ -1,34 +1,42 @@
-import React, { memo, useContext, useState } from 'react';
-import { debounce } from 'lodash-es';
+import React, { memo, useEffect, useState } from 'react';
+import { throttle } from 'lodash-es';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import './editor.css';
-import { DataContext } from '@/common/context';
 import request from '@common/request';
 import style from './index.module.less';
 
 type ArticleProps = {
-  onUpdated: (t: string) => void;
+  selectedTopic: any;
+  onUpdated: () => void;
 };
 
 // 定义一个变量，用于控制切换topic时带来的误更新topic内容，必须点击了编辑器才能执行更新
 let canUpdateId = 0;
 
 const Article: React.FC<ArticleProps> = (props) => {
-  const { onUpdated } = props;
-  const { selectedTopic } = useContext(DataContext);
+  const { selectedTopic = {}, onUpdated } = props;
+  const [tempDesc, setTempDesc] = useState<string>('');
+
+  // 切换了不同的内容，更新编辑器中的展示
+  // id的变化清除选中态，防止切换带来的误更新
+  useEffect(() => {
+    setTempDesc(selectedTopic.desc);
+    canUpdateId = 0;
+  }, [selectedTopic]);
 
   // 内容输入，直接更新
-  const handleChange = debounce((value: string) => {
-    // console.log('change:', value);
+  const handleChange = (value: string) => {
+    // console.log('change:', value, canUpdateId, selectedTopic.id);
+    setTempDesc(value);
+    saveArticleChange(value);
+  };
+
+  // 提交服务端修改内容
+  const saveArticleChange = throttle((value) => {
     if (canUpdateId !== selectedTopic.id) {
       return;
     }
-    saveArticleChange(value);
-  }, 1000);
-
-  // 提交服务端修改内容
-  const saveArticleChange = (value) => {
     if (value === '<p><br></p>') {
       return;
     }
@@ -36,20 +44,21 @@ const Article: React.FC<ArticleProps> = (props) => {
       ...selectedTopic,
       desc: value,
     }).then(() => {
-      onUpdated(value);
+      onUpdated();
     });
-  };
+  }, 1000);
 
   // 聚焦编辑器
   const handleFocus = () => {
     canUpdateId = selectedTopic.id;
+    console.log('canUpdateId:', canUpdateId);
   };
 
   return (
     <div className={style.articleContainer}>
       <ReactQuill
         theme="snow"
-        value={selectedTopic.desc}
+        value={tempDesc}
         onChange={handleChange}
         onFocus={handleFocus}
         placeholder="请输入内容"

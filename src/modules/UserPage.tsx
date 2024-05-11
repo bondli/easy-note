@@ -53,7 +53,7 @@ const UserPage: React.FC<UserPageProps> = (props) => {
       if (!data || !data.id) {
         messageApi.open({
           type: 'error',
-          content: `登录失败：${data.error}`,
+          content: `请检查用户名和密码是否正确，失败原因：${data.error}`,
         });
         return;
       }

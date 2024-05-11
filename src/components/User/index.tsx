@@ -1,5 +1,5 @@
 import React, { memo, useContext } from 'react';
-import { DownOutlined, CloudDownloadOutlined, CloudUploadOutlined, CloudSyncOutlined, UserSwitchOutlined } from '@ant-design/icons';
+import { GithubFilled, DownOutlined, CloudDownloadOutlined, CloudUploadOutlined, CloudSyncOutlined, UserSwitchOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Avatar, Dropdown, Button, Space, message, Modal } from 'antd';
 import Electron from '@common/electron';
@@ -26,19 +26,19 @@ const User: React.FC<UserProps> = (props) => {
     {
       label: '导出数据',
       key: '1',
-      icon: <CloudDownloadOutlined />,
+      icon: <CloudDownloadOutlined style={{ fontSize: '16px' }} />,
     }, {
       label: '恢复数据',
       key: '2',
-      icon: <CloudUploadOutlined />,
+      icon: <CloudUploadOutlined style={{ fontSize: '16px' }} />,
     }, {
       label: '刷新数据',
       key: '3',
-      icon: <CloudSyncOutlined />,
+      icon: <CloudSyncOutlined style={{ fontSize: '16px' }} />,
     }, {
       label: '退出登录',
       key: '4',
-      icon: <UserSwitchOutlined />,
+      icon: <UserSwitchOutlined style={{ fontSize: '16px' }} />,
     },
   ];
   const handleMenuClick: MenuProps['onClick'] = (e) => {
@@ -86,6 +86,7 @@ const User: React.FC<UserProps> = (props) => {
       return;
     }
   };
+
   const menuProps = {
     items,
     onClick: handleMenuClick,
@@ -97,9 +98,15 @@ const User: React.FC<UserProps> = (props) => {
         <Button style={{ width: '90%' }}>
           <Space className={style.userInfoContainer}>
             <div className={style.userInfo}>
-              <Avatar style={{ backgroundColor: '#18181b', verticalAlign: 'middle' }} size="small">
-                {avatar}
-              </Avatar>
+              {
+                avatar.length > 2 ? (
+                  <Avatar style={{ backgroundColor: '#18181b', verticalAlign: 'middle' }} size="small">
+                    {avatar}
+                  </Avatar>
+                ) : (
+                  <GithubFilled style={{ fontSize: '22px' }} />
+                )
+              }
               <span className={style.name}>{name}</span>
             </div>
             <DownOutlined />

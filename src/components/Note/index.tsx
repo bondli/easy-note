@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useContext } from 'react';
+import React, { memo, useState, useEffect, useContext, useRef } from 'react';
 import { FolderOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Menu, Empty, Popover, Input, message } from 'antd';
@@ -16,6 +16,7 @@ const NoteBook: React.FC = () => {
   const [menus, setMenus] = useState([]);
   const [showNewModal, setShowNewModal] = useState(false);
   const [newNoteName, setNewNoteName] = useState('');
+  const inputRef = useRef(null);
 
   useEffect(() => {
     const menusTemp: MenuItemType[] = [];
@@ -23,7 +24,7 @@ const NoteBook: React.FC = () => {
       menusTemp.push({
         label: <MenuItem label={item.name} count={item.counts} />,
         key: item.id,
-        icon: <FolderOutlined />,
+        icon: <FolderOutlined style={{ fontSize: '16px' }} />,
       });
     });
     setMenus(menusTemp);
@@ -73,12 +74,17 @@ const NoteBook: React.FC = () => {
 
   const handleModalOpenChange = (open: boolean) => {
     setShowNewModal(open);
+    if (open) {
+      setTimeout(() => {
+        inputRef?.current?.focus();
+      }, 200);
+    }
   };
 
   // 创建笔记本表单
   const createNoteForm = (
     <div>
-      <Input placeholder="最多8个字符" value={newNoteName} maxLength={8} allowClear onChange={handleNameInput} onPressEnter={handleCreateNote} />
+      <Input placeholder="最多8个字符" value={newNoteName} maxLength={8} allowClear onChange={handleNameInput} onPressEnter={handleCreateNote} ref={inputRef} />
       <div className={styles.tips}>输入完后按下回车提交</div>
     </div>
   );

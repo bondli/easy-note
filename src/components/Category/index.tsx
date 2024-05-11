@@ -23,22 +23,22 @@ const Category: React.FC = () => {
     id: 'all',
     name: '所有待办',
     count: topicCounts.all || 0,
-    icon: <ProductOutlined />,
+    icon: <ProductOutlined style={{ fontSize: '16px' }} />,
   }, {
     id: 'today',
     name: '今天到期',
     count: topicCounts.today || 0,
-    icon: <FileTextOutlined />,
+    icon: <FileTextOutlined style={{ fontSize: '16px' }} />,
   }, {
     id: 'done',
     name: '已完成',
     count: topicCounts.done || 0,
-    icon: <FileDoneOutlined />,
+    icon: <FileDoneOutlined style={{ fontSize: '16px' }} />,
   }, {
     id: 'trash',
     name: '垃圾箱',
     count: topicCounts.deleted || 0,
-    icon: <DeleteOutlined />,
+    icon: <DeleteOutlined style={{ fontSize: '16px' }} />,
   }];
 
   const items: MenuItemType[] = [];

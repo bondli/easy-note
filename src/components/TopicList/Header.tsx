@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState } from 'react';
+import React, { memo, useContext, useState, useRef } from 'react';
 import { EllipsisOutlined, FormOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Button, Popover, Modal, Input, message } from 'antd';
 import { HEADER_HEIGHT, SPLIT_LINE, DEFAULT_NOTE } from '@/common/constant';
@@ -18,6 +18,7 @@ const Header: React.FC<HeaderProps> = (props) => {
   const [showActionModal, setShowActionModal] = useState(false);
   const [showEditPanel, setShowEditPanel] = useState(false);
   const [tempNoteName, setTempNoteName] = useState('');
+  const inputRef = useRef(null);
   
   const createTopic = () => {
     request.post('/topic/add', {
@@ -53,6 +54,10 @@ const Header: React.FC<HeaderProps> = (props) => {
     setShowActionModal(false);
     setShowEditPanel(true);
     setTempNoteName(currentNote.name);
+    setTimeout(() => {
+      inputRef?.current?.focus();
+      inputRef?.current?.select();
+    }, 200);
   };
 
   const handleNoteNameChange = (e) => {
@@ -163,7 +168,7 @@ const Header: React.FC<HeaderProps> = (props) => {
         onOk={handleSaveEdit}
         onCancel={handleCancelEdit}
       >
-        <Input value={tempNoteName} onChange={handleNoteNameChange} maxLength={8} allowClear />
+        <Input value={tempNoteName} onChange={handleNoteNameChange} maxLength={8} allowClear ref={inputRef} />
       </Modal>
     </div>
   );

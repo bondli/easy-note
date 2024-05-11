@@ -123,8 +123,8 @@ const Header: React.FC<HeaderProps> = (props) => {
   const actionMenu = () => {
     return (
       <div className={style.actionMenu}>
-        <Button icon={<DragOutlined />} type="text" onClick={handleMove}>移到其他笔记本</Button>
-        <Button icon={<RiseOutlined />} type="text" onClick={handlePriority}>调整代办优先级</Button>
+        <Button icon={<DragOutlined style={{ fontSize: '16px' }} />} type="text" onClick={handleMove}>移到其他笔记本</Button>
+        <Button icon={<RiseOutlined style={{ fontSize: '16px' }} />} type="text" onClick={handlePriority}>调整代办优先级</Button>
       </div>
     );
   };
@@ -132,7 +132,7 @@ const Header: React.FC<HeaderProps> = (props) => {
   // 更新截止时间
   const onDateChange = (v) => {
     setShowTimePickerModal(false);
-    console.log(v);
+    // console.log(v);
     request.post(`/topic/update?id=${selectedTopic.id}`, {
       ...selectedTopic,
       deadline: v,
