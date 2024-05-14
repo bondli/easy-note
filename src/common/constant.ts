@@ -3,6 +3,6 @@ export const HEADER_HEIGHT = '50px';
 
 export const DEFAULT_NOTE = {
   id: 'all',
-  name: '代办事项',
+  name: '所有代办',
   isVirtual: true,
 };

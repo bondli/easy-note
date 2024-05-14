@@ -34,7 +34,7 @@ const TopicCard: React.FC<TopicCardProps> = (props) => {
 
   const handleClick = () => {
     userLog('Click Topic:', {id: data.id, title: data.title});
-    getTopicList(); // 刷新列表数据
+    // getTopicList(); // 刷新列表数据，不知道为什么这里要刷新列表，先取消了
     setSelectedTopic(data);
   };
 

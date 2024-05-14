@@ -1,6 +1,6 @@
 import express from 'express';
 import { noteNumsFixed } from './common-controller';
-import { createTopic, getTopicInfo, getTopics, getTopicsByTagId, updateTopic, moveTopic, getTopicCounts } from './topic-controller';
+import { createTopic, getTopicInfo, getTopics, searchTopics, getTopicsByTagId, updateTopic, moveTopic, getTopicCounts } from './topic-controller';
 import { createNote, getNoteInfo, getNotes, updateNote, deleteNote } from './note-controller';
 import { createUser, userLogin, updateUser } from './user-controller';
 import { createTags } from './tag-controller';
@@ -10,6 +10,7 @@ const router = express.Router();
 router.post('/topic/add', createTopic);
 router.get('/topic/detail', getTopicInfo);
 router.get('/topic/getList', getTopics);
+router.post('/topic/searchList', searchTopics);
 router.get('/topic/getListByTagId', getTopicsByTagId);
 router.post('/topic/update', updateTopic);
 router.post('/topic/move', moveTopic);

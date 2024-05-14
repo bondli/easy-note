@@ -4,5 +4,6 @@ import { Sequelize } from 'sequelize'
 // https://github.com/demopark/sequelize-docs-Zh-CN/blob/v6/core-concepts/model-querying-basics.md
 export const sequelize = new Sequelize({
   dialect: 'sqlite',
+  // eslint-disable-next-line no-undef
   storage: process.env.DBPATH,
 });

@@ -1,5 +1,5 @@
-import React, { memo, useContext, useState, useRef } from 'react';
-import { EllipsisOutlined, FormOutlined, DeleteOutlined } from '@ant-design/icons';
+import React, { memo, useContext, useState, useEffect, useRef } from 'react';
+import { SearchOutlined, EllipsisOutlined, FormOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Button, Popover, Modal, Input, message } from 'antd';
 import { HEADER_HEIGHT, SPLIT_LINE, DEFAULT_NOTE } from '@/common/constant';
 import { userLog } from '@/common/electron';
@@ -12,14 +12,25 @@ type HeaderProps = {
 }
 const Header: React.FC<HeaderProps> = (props) => {
   const { onCreated } = props;
-  const { currentNote, setCurrentNote, getNoteList } = useContext(DataContext);
+  const { currentNote, setCurrentNote, selectedTopic, getNoteList, setTopicList } = useContext(DataContext);
 
   const [modalApi, modalContextHolder] = Modal.useModal();
   const [messageApi, msgContextHolder] = message.useMessage();
   const [showActionModal, setShowActionModal] = useState(false);
   const [showEditPanel, setShowEditPanel] = useState(false);
   const [tempNoteName, setTempNoteName] = useState('');
+  const [showSearchPanel, setShowSearchPanel] = useState(false);
+  const [searchKey, setSearchKey] = useState('');
   const inputRef = useRef(null);
+  const inputSearchRef = useRef(null);
+
+  const [searchDone, setSearchDone] = useState(false);
+  const [searchResultCount, setSearchResultCount] = useState(0);
+
+  useEffect(() => {
+    setSearchDone(false);
+    setSearchKey('');
+  }, [currentNote.id, selectedTopic?.id]);
   
   const createTopic = () => {
     request.post('/topic/add', {
@@ -141,6 +152,7 @@ const Header: React.FC<HeaderProps> = (props) => {
     setShowActionModal(open);
   };
 
+  // 操作笔记本菜单
   const actionMenu = () => {
     return (
       <div className={style.actionMenu}>
@@ -150,12 +162,62 @@ const Header: React.FC<HeaderProps> = (props) => {
     );
   };
 
+  // 搜索框输入
+  const handleSearchChange = (e) => {
+    setSearchKey(e.target.value);
+  };
+
+  // 执行搜索
+  const goSearch = () => {
+    userLog('Search Topic keyword: ', searchKey);
+    request.post(`/topic/searchList?noteId=${currentNote.id}`, {
+      searchKey,
+    }).then((res: any) => {
+      setTopicList(res.data);
+      setSearchResultCount(res.count || 0);
+      setSearchDone(true);
+      setShowSearchPanel(false);
+    }).catch((err) => {
+      userLog('Logic Search Topic failed: ', err);
+      setTopicList([]);
+      messageApi.open({
+        type: 'error',
+        content: `搜索失败：${err.message}`,
+      });
+    });
+  };
+
+  // 打开搜索面板
+  const handleShowSearch = () => {
+    setSearchDone(false);
+    setSearchKey('');
+    setShowSearchPanel(true);
+    setTimeout(() => {
+      inputSearchRef?.current?.focus();
+      inputSearchRef?.current?.select();
+    }, 300);
+  };
+
+  // 关闭搜索面板
+  const handleHideSearch = () => {
+    setShowSearchPanel(false);
+  };
+
   return (
     <div className={style.header} style={{ height: HEADER_HEIGHT, borderBottom: SPLIT_LINE}}>
       <div className={style.title}>
         <span className={style.titleText}>{currentNote.name}</span>
         {
-          currentNote?.isVirtual ? (null) : (
+          currentNote?.isVirtual ? (
+            <div className={style.searchContainer}>
+              <Button icon={<SearchOutlined />} type="text" onClick={handleShowSearch} style={{ outline: 0 }}></Button>
+              {
+                searchKey && searchDone ? (
+                  <span className={style.searchResult}>搜索关键字 “{searchKey}” 结果共 {searchResultCount} 条</span>
+                ) : null
+              }
+            </div>
+          ) : (
             <Popover
               content={actionMenu}
               trigger="click"
@@ -180,6 +242,21 @@ const Header: React.FC<HeaderProps> = (props) => {
         onCancel={handleCancelEdit}
       >
         <Input value={tempNoteName} onChange={handleNoteNameChange} maxLength={8} allowClear ref={inputRef} />
+      </Modal>
+
+      <Modal
+        title="搜索代办"
+        open={showSearchPanel}
+        onOk={goSearch}
+        onCancel={handleHideSearch}
+      >
+        <Input
+          placeholder="请输入关键字"
+          onChange={handleSearchChange}
+          onPressEnter={goSearch}
+          value={searchKey}
+          ref={inputSearchRef}
+        />
       </Modal>
     </div>
   );

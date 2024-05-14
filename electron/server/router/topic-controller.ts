@@ -61,9 +61,12 @@ export const getTopics = async (req: Request, res: Response) => {
     }
     // 今日到期
     else if (noteId === 'today') {
+      const today = new Date();
+      const todayAtMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
       where['deadline'] = {
-        [Op.lt]: new Date(),
-        [Op.gt]: new Date(new Date().getMilliseconds() - 24 * 60 * 60 * 1000)
+        [Op.gte]: todayAtMidnight,
+        [Op.lte]: endOfToday,
       };
     }
     // 已删除
@@ -219,8 +222,8 @@ export const getTopicCounts = async(req: Request, res: Response) => {
       where: {
         userId,
         deadline: {
-          [Op.lt]: todayAtMidnight,
-          [Op.gt]: endOfToday,
+          [Op.gte]: todayAtMidnight,
+          [Op.lte]: endOfToday,
         },
       }
     });
@@ -232,6 +235,90 @@ export const getTopicCounts = async(req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error getting topicList by noteId:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// 搜素代办列表
+export const searchTopics = async (req: Request, res: Response) => {
+  const userId = req.headers['x-user-id'];
+
+  try {
+    const { noteId } = req.query;
+    const { searchKey } = req.body;
+
+    let status: string = 'undo';
+    let deadline: any = null;
+
+    // 所有代办
+    if (noteId === 'all') {
+      status = 'undo';
+    }
+    // 所有已完成
+    else if (noteId === 'done') {
+      status = 'done';
+    }
+    // 今日到期
+    else if (noteId === 'today') {
+      const today = new Date();
+      const todayAtMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+      deadline = {
+        [Op.gte]: todayAtMidnight,
+        [Op.lte]: endOfToday,
+      };
+    }
+    // 已删除
+    else if (noteId === 'trash') {
+      status = 'deleted';
+    }
+
+    const commonCondition: any = [];
+    commonCondition.push({
+      userId,
+    });
+    commonCondition.push({
+      status,
+    });
+
+    if (deadline) {
+      commonCondition.push({
+        deadline,
+      });
+    }
+
+    let where: any = {
+      [Op.and]: commonCondition,
+    };
+
+    if (searchKey) {
+      where = {
+        [Op.and]: commonCondition,
+        [Op.or]: [
+          {
+            title: {
+              [Op.like]: `%${searchKey}%`,
+            }
+          },
+          {
+            desc: {
+              [Op.like]: `%${searchKey}%`,
+            }
+          }
+        ]
+      };
+    }
+
+    const { count, rows } = await Topic.findAndCountAll({
+      where,
+      order: [['createdAt', 'DESC']],
+    });
+    res.json({
+      count: count || 0,
+      data: rows || [],
+    });
+  } catch (error) {
+    console.error('Error search topicList by noteId:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
