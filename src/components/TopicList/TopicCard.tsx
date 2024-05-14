@@ -2,6 +2,7 @@ import React, { memo, useContext } from 'react';
 import { Card, Badge } from 'antd';
 import { format as timeAgoFormat } from 'timeago.js';
 import dayjs from 'dayjs';
+import { userLog } from '@/common/electron';
 import { DataContext } from '@/common/context';
 import style from './index.module.less';
 
@@ -32,7 +33,7 @@ const TopicCard: React.FC<TopicCardProps> = (props) => {
   const { selectedTopic, setSelectedTopic, getTopicList } = useContext(DataContext);
 
   const handleClick = () => {
-    // console.log('changeTopic:', data);
+    userLog('Click Topic:', {id: data.id, title: data.title});
     getTopicList(); // 刷新列表数据
     setSelectedTopic(data);
   };

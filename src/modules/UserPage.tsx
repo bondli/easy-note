@@ -1,6 +1,7 @@
 import React, { memo, useState } from 'react';
 import type { FormProps } from 'antd';
 import { Layout, Row, Col, Form, Input, Button, message } from 'antd';
+import { userLog } from '@/common/electron';
 import request from '@common/request';
 import style from './UserPage.module.less';
 
@@ -35,6 +36,7 @@ const UserPage: React.FC<UserPageProps> = (props) => {
 
   // 登录和注册切换
   const handleSwitch = (type: string) => {
+    userLog('Switch Login Action:', type);
     if (type === 'login') {
       setShowLogin(true);
     } else {
@@ -44,12 +46,13 @@ const UserPage: React.FC<UserPageProps> = (props) => {
 
   // 执行登录
   const onLogin: FormProps<FieldType>['onFinish'] = (values) => {
-    // console.log('Success:', values);
+    userLog('Submit Login:', values);
     request.post('/user/login', {
       name: values.username,
       password: values.password,
     }).then((data: any) => {
       // console.log('data', data);
+      userLog('Submit Login Result:', data);
       if (!data || !data.id) {
         messageApi.open({
           type: 'error',
@@ -68,24 +71,17 @@ const UserPage: React.FC<UserPageProps> = (props) => {
       });
     });
   };
-  
-  const onLoginFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
-    // console.log('Failed:', errorInfo);
-    // messageApi.open({
-    //   type: 'error',
-    //   content: `登录失败：${errorInfo}`,
-    // });
-  };
 
   // 执行注册
   const onRegister: FormProps<RegFieldType>['onFinish'] = (values) => {
-    // console.log('Success:', values);
+    userLog('Submit Register:', values);
     request.post('/user/register', {
       name: values.regname,
       password: values.regpwd,
       mail: '',
       avatar: values.regname.substring(0,1),
     }).then((data: any) => {
+      userLog('Submit Register Result:', data);
       if (data && data.error) {
         messageApi.open({
           type: 'error',
@@ -103,14 +99,6 @@ const UserPage: React.FC<UserPageProps> = (props) => {
         id: data?.id || 0,
       });
     });
-  };
-  
-  const onRegisterFailed: FormProps<RegFieldType>['onFinishFailed'] = (errorInfo) => {
-    // console.log('Failed:', errorInfo);
-    // messageApi.open({
-    //   type: 'error',
-    //   content: `注册失败：${errorInfo}`,
-    // });
   };
 
   return (
@@ -135,7 +123,6 @@ const UserPage: React.FC<UserPageProps> = (props) => {
                     wrapperCol={{ span: 16 }}
                     style={{ minWidth: 400, maxWidth: 600 }}
                     onFinish={onLogin}
-                    onFinishFailed={onLoginFailed}
                     autoComplete="off"
                   >
                     <Form.Item<FieldType>
@@ -171,7 +158,6 @@ const UserPage: React.FC<UserPageProps> = (props) => {
                     wrapperCol={{ span: 16 }}
                     style={{ minWidth: 400, maxWidth: 600 }}
                     onFinish={onRegister}
-                    onFinishFailed={onRegisterFailed}
                     autoComplete="off"
                   >
                     <Form.Item<RegFieldType>

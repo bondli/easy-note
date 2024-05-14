@@ -3,6 +3,7 @@ import { CheckCircleOutlined, ClockCircleOutlined, DeleteOutlined, UndoOutlined,
 import { Button, Popover, Calendar, Modal, message, Select, Radio } from 'antd';
 import dayjs from 'dayjs';
 import { HEADER_HEIGHT, SPLIT_LINE } from '@/common/constant';
+import { userLog } from '@/common/electron';
 import { DataContext } from '@/common/context';
 import request from '@common/request';
 import style from './index.module.less';
@@ -35,11 +36,13 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   // 点击移动
   const handleMove = () => {
+    userLog('Clcik Move Topic: ', selectedTopic.id);
     setShowActionModal(false);
     setShowMovePanel(true);
   };
 
   const handleCancelMove = () => {
+    userLog('Clcik Cancel Move Topic: ', selectedTopic.id);
     setShowMovePanel(false);
   };
 
@@ -50,6 +53,7 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   // 保存移动
   const handleSaveMove = () => {
+    userLog('Clcik Save Move Topic, new NoteBook id: ', moveToNoteId);
     if (!moveToNoteId) {
       messageApi.open({
         type: 'error',
@@ -69,6 +73,7 @@ const Header: React.FC<HeaderProps> = (props) => {
       setMoveToNoteId(0);
       onUpdated(selectedTopic.id);
     }).catch((err) => {
+      userLog('Logic Move Topic Error: ', err);
       messageApi.open({
         type: 'error',
         content: `移动代办失败：${err.message}`,
@@ -78,11 +83,13 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   // 点击调整优先级
   const handlePriority = () => {
+    userLog('Clcik Update Priority Topic: ', selectedTopic.id);
     setShowActionModal(false);
     setShowPriorityPanel(true);
   };
 
   const handleCancelPriority = () => {
+    userLog('Clcik Cancel Update Priority Topic: ', selectedTopic.id);
     setShowPriorityPanel(false);
   };
 
@@ -93,6 +100,7 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   // 保存优先级
   const handleSavePriority = () => {
+    userLog('Logic Save Update Priority Topic, new Priority: ', newPriority);
     if (!newPriority) {
       messageApi.open({
         type: 'error',
@@ -101,7 +109,6 @@ const Header: React.FC<HeaderProps> = (props) => {
       return;
     }
     request.post(`/topic/update?id=${selectedTopic.id}`, {
-      ...selectedTopic,
       priority: newPriority,
     }).then(() => {
       messageApi.open({
@@ -112,6 +119,7 @@ const Header: React.FC<HeaderProps> = (props) => {
       setNewPriority(0);
       onUpdated(selectedTopic.id, 'updatePriority');
     }).catch((err) => {
+      userLog('Logic Update Priority Topic Error: ', err);
       messageApi.open({
         type: 'error',
         content: `更新代办优先级失败：${err.message}`,
@@ -131,10 +139,9 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   // 更新截止时间
   const onDateChange = (v) => {
+    userLog('Update Topic Dealine: ', v);
     setShowTimePickerModal(false);
-    // console.log(v);
     request.post(`/topic/update?id=${selectedTopic.id}`, {
-      ...selectedTopic,
       deadline: v,
     }).then(() => {
       messageApi.open({
@@ -143,6 +150,7 @@ const Header: React.FC<HeaderProps> = (props) => {
       });
       onUpdated(selectedTopic.id, 'updateDeadline');
     }).catch((err) => {
+      userLog('Logic Update Topic Dealine Error: ', err);
       messageApi.open({
         type: 'error',
         content: `设置截止时间失败：${err.message}`,
@@ -167,8 +175,8 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   // 完成代办
   const updateToDone = () => {
+    userLog('Click Todone Topic: ', selectedTopic.id);
     request.post(`/topic/update?id=${selectedTopic.id}&op=done`, {
-      ...selectedTopic,
       status: 'done',
     }).then(() => {
       messageApi.open({
@@ -177,6 +185,7 @@ const Header: React.FC<HeaderProps> = (props) => {
       });
       onUpdated(selectedTopic.id);
     }).catch((err) => {
+      userLog('Logic Todone Topic Error: ', err);
       messageApi.open({
         type: 'error',
         content: `完成代办失败：${err.message}`,
@@ -186,8 +195,8 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   // 删除代办
   const updateToDeleted = () => {
+    userLog('Click Delete Topic: ', selectedTopic.id);
     request.post(`/topic/update?id=${selectedTopic.id}&op=delete`, {
-      ...selectedTopic,
       status: 'deleted',
     }).then(() => {
       messageApi.open({
@@ -196,6 +205,7 @@ const Header: React.FC<HeaderProps> = (props) => {
       });
       onUpdated(selectedTopic.id);
     }).catch((err) => {
+      userLog('Logic Delete Topic Error: ', err);
       messageApi.open({
         type: 'error',
         content: `删除代办失败：${err.message}`,
@@ -205,8 +215,8 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   // 从删除里面恢复
   const updateToUndo = () => {
+    userLog('Click Restore Topic: ', selectedTopic.id);
     request.post(`/topic/update?id=${selectedTopic.id}&op=restore`, {
-      ...selectedTopic,
       status: 'undo',
     }).then(() => {
       messageApi.open({
@@ -215,6 +225,7 @@ const Header: React.FC<HeaderProps> = (props) => {
       });
       onUpdated(selectedTopic.id);
     }).catch((err) => {
+      userLog('Logic Restore Topic Error: ', err);
       messageApi.open({
         type: 'error',
         content: `恢复代办失败：${err.message}`,

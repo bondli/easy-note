@@ -4,63 +4,82 @@
  */
 
 const win: any = window;
-export default class Electron {
-  static isInElectron() {
-    return navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;
-  }
 
-  static setStore(key, value) {
-    if (!this.isInElectron()) {
-      win.localStorage.setItem(key, value);
-      return;
-    }
-    win.electron?.ipcRenderer?.setStoreValue(key, value);
-  }
+const isInElectron = navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;
+const ipcRenderer = win.electron?.ipcRenderer || {};
 
-  static getStore(key) {
-    if (!this.isInElectron()) {
-      return win.localStorage.getItem(key);
-    }
-    return win.electron?.ipcRenderer?.getStoreValue(key);
+const _setStore = (key, value) => {
+  if (!isInElectron) {
+    win.localStorage.setItem(key, value);
+    return;
   }
-
-  static deleteStore(key) {
-    if (!this.isInElectron()) {
-      win.localStorage.removeItem(key);
-      return;
-    }
-    win.electron?.ipcRenderer?.deleteStore(key);
-  }
-
-  // 保存登录的用户信息
-  static saveLoginData(data) {
-    this.setStore('loginData', data);
-  }
-
-  // 获取用户的登录信息
-  static getLoginData() {
-    return this.getStore('loginData');
-  }
-
-  // 删除登录的用户信息
-  static deleteLoginData() {
-    this.deleteStore('loginData');
-  }
-
-  // 导出数据
-  static exportData() {
-    if (!this.isInElectron()) {
-      return;
-    }
-    win.electron?.ipcRenderer?.exportData();
-  }
-
-  // 导入数据
-  static importData () {
-    if (!this.isInElectron()) {
-      return;
-    }
-    win.electron?.ipcRenderer?.importData();
-  }
-
+  ipcRenderer.setStoreValue(key, value);
 }
+
+const _getStore = (key) => {
+  if (!isInElectron) {
+    return win.localStorage.getItem(key);
+  }
+  return ipcRenderer.getStoreValue(key);
+}
+
+const _deleteStore = (key) => {
+  if (!isInElectron) {
+    win.localStorage.removeItem(key);
+    return;
+  }
+  ipcRenderer.deleteStore(key);
+}
+
+// 保存登录的用户信息
+export const saveLoginData = (data) => {
+  _setStore('loginData', data);
+}
+
+// 获取用户的登录信息
+export const getLoginData = () => {
+  return _getStore('loginData');
+}
+
+// 删除登录的用户信息
+export const deleteLoginData = () => {
+  _deleteStore('loginData');
+}
+
+// 打日志
+export const userLog = (msg: any, msgData?: any) => {
+  msgData ? console.log(msg, msgData) : console.log(msg);
+  
+  let outMsg = typeof msg === 'string' ? msg : JSON.stringify(msg);
+  if (msgData) {
+    outMsg += ` ${JSON.stringify(msgData)}`;
+  }
+  ipcRenderer.userLog(outMsg);
+}
+
+// 导出数据
+export const exportData = () => {
+  if (!isInElectron) {
+    return;
+  }
+  ipcRenderer.exportData();
+}
+
+// 导入数据
+export const importData = () => {
+  if (!isInElectron) {
+    return;
+  }
+  ipcRenderer.importData();
+}
+
+const ElectronBridge = {
+  saveLoginData,
+  getLoginData,
+  deleteLoginData,
+  userLog,
+  exportData,
+  importData,
+};
+
+export default ElectronBridge;

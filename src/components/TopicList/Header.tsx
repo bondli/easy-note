@@ -2,6 +2,7 @@ import React, { memo, useContext, useState, useRef } from 'react';
 import { EllipsisOutlined, FormOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Button, Popover, Modal, Input, message } from 'antd';
 import { HEADER_HEIGHT, SPLIT_LINE, DEFAULT_NOTE } from '@/common/constant';
+import { userLog } from '@/common/electron';
 import { DataContext } from '@/common/context';
 import request from '@common/request';
 import style from './index.module.less';
@@ -26,8 +27,10 @@ const Header: React.FC<HeaderProps> = (props) => {
       desc: '',
       noteId: currentNote.id,
     }).then((res) => {
+      userLog('Logic Create Topic: ', res);
       onCreated(res);
     }).catch((err) => {
+      userLog('Logic Create Topic Failed: ', currentNote);
       messageApi.open({
         type: 'error',
         content: `创建失败：${err.message}`,
@@ -37,6 +40,7 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   // 新增一条笔记
   const handleNewTopic = () => {
+    userLog('Click Create Topic at: ', currentNote);
     // 如果是虚拟的笔记本需要先选择实体笔记本
     if (currentNote.isVirtual) {
       messageApi.open({
@@ -51,6 +55,7 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   // 编辑笔记本
   const handleEdit = () => {
+    userLog('Click Edit Notebook: ', currentNote);
     setShowActionModal(false);
     setShowEditPanel(true);
     setTempNoteName(currentNote.name);
@@ -66,6 +71,7 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   // 保存编辑信息
   const handleSaveEdit = () => {
+    userLog('Submit Save Edit Notebook, new Notebook name: ', tempNoteName);
     if (!tempNoteName || !tempNoteName.length) {
       messageApi.open({
         type: 'error',
@@ -86,6 +92,7 @@ const Header: React.FC<HeaderProps> = (props) => {
           content: `修改成功`,
         });
       }).catch((err) => {
+        userLog('Logic Save Edit Notebook failed: ', err);
         messageApi.open({
           type: 'error',
           content: `修改失败：${err.message}`,
@@ -100,6 +107,7 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   // 删除笔记本
   const handleDelete = () => {
+    userLog('Click Delete Notebook: ', currentNote);
     setShowActionModal(false);
     modalApi.confirm({
       title: '确认删除吗？',
@@ -109,6 +117,8 @@ const Header: React.FC<HeaderProps> = (props) => {
         request
         .get(`/note/delete?id=${currentNote?.id}`)
         .then(() => {
+          userLog('Logic Delete Notebook: ', currentNote);
+          // 删除后，切换到默认笔记本
           setCurrentNote(DEFAULT_NOTE);
           getNoteList();
           messageApi.open({
@@ -117,6 +127,7 @@ const Header: React.FC<HeaderProps> = (props) => {
           });
         })
         .catch((err) => {
+          userLog('Logic Delete Notebook failed: ', err);
           messageApi.open({
             type: 'error',
             content: `删除失败：${err.message}`,

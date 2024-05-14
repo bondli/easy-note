@@ -10,7 +10,7 @@
     <true/>
     <key>com.apple.security.automation.apple-events</key>
     <true/>
-    <key>com.apple.security.files.user-selected.read-only</key>
+    <key>com.apple.security.files.user-selected.read-write</key>
     <true/>
     <key>com.apple.security.files.bookmarks</key>
     <true/>
@@ -21,6 +21,23 @@
     <key>com.apple.security.temporary-exception.files.home-directory</key>
     <true/>
     <key>com.apple.security.temporary-exception.files.user-selected.read-only</key>
+    <true/>
+    <key>com.apple.security.print</key>
+    <true/>
+    <key>com.apple.security.temporary-exception.apple-events</key>
+    <array>
+      <string>com.apple.systemevents</string>
+    </array>
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.developer-tools</string>
+    <key>LSMinimumSystemVersionByArchitecture</key>
+    <dict>
+      <key>x86_64</key>
+      <string>10.13</string>
+      <key>arm64</key>
+      <string>11.0</string>
+    </dict>
+    <key>LSRequiresRosetta</key>
     <true/>
   </dict>
 </plist>

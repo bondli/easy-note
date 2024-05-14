@@ -2,7 +2,7 @@ import React, { memo, useContext } from 'react';
 import { GithubFilled, DownOutlined, CloudDownloadOutlined, CloudUploadOutlined, CloudSyncOutlined, UserSwitchOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Avatar, Dropdown, Button, Space, message, Modal } from 'antd';
-import Electron from '@common/electron';
+import ElectronBridge from '@common/electron';
 import { DataContext } from '@/common/context';
 import { HEADER_HEIGHT, SPLIT_LINE } from '@/common/constant';
 import style from './index.module.less';
@@ -43,9 +43,10 @@ const User: React.FC<UserProps> = (props) => {
   ];
   const handleMenuClick: MenuProps['onClick'] = (e) => {
     const { key } = e;
+    ElectronBridge.userLog('Click MainMenu: ', key);
     // 导出数据
     if (key === '1') {
-      Electron.exportData();
+      ElectronBridge.exportData();
       messageApi.open({
         type: 'success',
         content: '数据导出成功，请在下载目录下检查是否存在文件：easynote-database.db',
@@ -57,7 +58,7 @@ const User: React.FC<UserProps> = (props) => {
         title: '确认恢复数据？',
         content: '请确认已将数据文件命名成：easynote-database.db，并放在Downloads目录下。',
         onOk() {
-          Electron.importData();
+          ElectronBridge.importData();
           getTopicCounts();
           getNoteList();
           getTopicList();
@@ -81,7 +82,7 @@ const User: React.FC<UserProps> = (props) => {
     }
     // 退出登录
     else if (key === '4') {
-      Electron.deleteLoginData();
+      ElectronBridge.deleteLoginData();
       window.location.reload();
       return;
     }

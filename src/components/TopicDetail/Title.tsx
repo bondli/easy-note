@@ -3,6 +3,7 @@ import { Input, message } from 'antd';
 import dayjs from 'dayjs';
 import { format as timeAgoFormat } from 'timeago.js';
 import { HEADER_HEIGHT, SPLIT_LINE } from '@/common/constant';
+import { userLog } from '@/common/electron';
 import { DataContext } from '@/common/context';
 import request from '@common/request';
 import style from './index.module.less';
@@ -21,6 +22,7 @@ const Title: React.FC<TitleProps> = (props) => {
 
   // 设标题输入框出现
   const handleEditTitle = () => {
+    userLog('Click Edit Topic Title: ', {id: selectedTopic.id, title: selectedTopic.title});
     setShowEditTitle(true);
     setTimeout(() => {
       inputRef?.current?.focus();
@@ -31,6 +33,7 @@ const Title: React.FC<TitleProps> = (props) => {
   // 提交服务端修改标题
   const saveTitleChange = (e) => {
     const tempTitle = e.target.value;
+    userLog('Logic Save Topic Title: ', tempTitle);
     if (!tempTitle || !tempTitle.length) {
       messageApi.open({
         type: 'error',
@@ -39,12 +42,12 @@ const Title: React.FC<TitleProps> = (props) => {
       return;
     }
     request.post(`/topic/update?id=${selectedTopic.id}`, {
-      ...selectedTopic,
       title: tempTitle,
     }).then(() => {
       setShowEditTitle(false);
       onUpdated(tempTitle);
     }).catch((err) => {
+      userLog('Logic Save Topic Title Error: ', err);
       messageApi.open({
         type: 'error',
         content: `修改失败：${err.message}`,

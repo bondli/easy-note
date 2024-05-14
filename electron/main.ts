@@ -8,10 +8,12 @@ import logger from 'electron-log';
 // file position on macOS: ~/Library/Logs/{app name}/main.log
 logger.transports.file.fileName = 'main.log';
 logger.transports.file.level = 'info';
+logger.transports.file.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}]{scope} {text}';
 
 // 数据持久化
 const store = new Store();
 
+// 通过bridge的方式开放给渲染进程的功能
 const initIpcRenderer = () => {
   ipcMain.on('setStore', (_, key, value) => {
     store.set(key, value);
@@ -25,6 +27,11 @@ const initIpcRenderer = () => {
   ipcMain.on('deleteStore', (_, key) => {
     store.delete(key);
     _.returnValue = '';
+  });
+
+  // 打日志
+  ipcMain.on('userLog', (_, message) => {
+    logger.info(message);
   });
 
   // 导出数据库
@@ -59,6 +66,8 @@ const initIpcRenderer = () => {
 // 定义ipcRenderer监听事件
 initIpcRenderer();
 
+let nodeServerStatus = false;
+
 // 启动服务器
 const startNodeServer = () => {
   const child = fork(path.join(__dirname,'./server/index'), [], {
@@ -68,17 +77,20 @@ const startNodeServer = () => {
     },
   });
 
+  nodeServerStatus = true;
+
   child.on('error', (err) => {
-    logger.info("ERROR: spawn failed! (" + err + ")");
+    logger.info("server error: spawn failed! (" + err + ")");
   });
 
   child.on('data', (data) => {
-    logger.info('stdout: ' , data);
+    logger.info('server stdout: ' , data);
   });
 
   child.on('exit', (code, signal) => {
-    logger.info('exit code : ', code);
-    logger.info('exit signal : ', signal);
+    nodeServerStatus = false;
+    logger.info('server exit code: ', code);
+    logger.info('server exit signal: ', signal);
   });
 
   child.unref();
@@ -86,12 +98,15 @@ const startNodeServer = () => {
   process.on('exit', () => {
     child.kill();
   });
-}
+};
 
 let mainWindow: any = null;
 
 const createWindow = () => {
-  startNodeServer();
+  // 不重复启动server
+  if (!nodeServerStatus) {
+    startNodeServer();
+  }
   mainWindow = new BrowserWindow({
     title: 'EasyNote',
     center: true,

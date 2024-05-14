@@ -7,9 +7,13 @@
   height: calc(100vh - 142px);
   overflow-y: scroll;
 }
+.ql-editor.ql-blank {
+  line-height: 28px !important;
+}
 .ql-editor p {
   word-break: break-all;
   overflow-wrap: break-word;
+  line-height: 28px;
 }
 .ql-editor ol,
 .ql-editor ul {

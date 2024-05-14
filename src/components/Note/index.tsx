@@ -2,6 +2,7 @@ import React, { memo, useState, useEffect, useContext, useRef } from 'react';
 import { FolderOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Menu, Empty, Popover, Input, message } from 'antd';
+import { userLog } from '@/common/electron';
 import { DataContext } from '@/common/context';
 import request from '@common/request';
 import MenuItem from '@components/MenuItem';
@@ -53,6 +54,7 @@ const NoteBook: React.FC = () => {
       });
       return;
     }
+    userLog('Logic Create Notebook:', newNoteName);
     request
       .post('/note/create', {
         name: newNoteName,
@@ -65,6 +67,7 @@ const NoteBook: React.FC = () => {
           content: `创建成功`,
         });
       }).catch((err) => {
+        userLog('Logic Create Notebook failed:', err);
         messageApi.open({
           type: 'error',
           content: `创建失败：${err.message}`,
@@ -95,6 +98,7 @@ const NoteBook: React.FC = () => {
     noteList.forEach((item) => {
       if (item.id == key) {
         setCurrentNote(item);
+        userLog('Click Notebook:', item);
       }
     });
   };

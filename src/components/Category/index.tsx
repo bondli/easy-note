@@ -3,6 +3,7 @@ import { ProductOutlined, FileDoneOutlined, FileTextOutlined, DeleteOutlined } f
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
 import MenuItem from '@components/MenuItem';
+import { userLog } from '@common/electron';
 import { DataContext } from '@/common/context';
 import { SPLIT_LINE } from '@/common/constant';
 import style from './index.module.less';
@@ -57,6 +58,7 @@ const Category: React.FC = () => {
       if (item.id == key) {
         item.isVirtual = true;
         setCurrentNote(item);
+        userLog('Click Notebook:', item);
       }
     });
   };

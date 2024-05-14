@@ -41,7 +41,6 @@ const Article: React.FC<ArticleProps> = (props) => {
       return;
     }
     request.post(`/topic/update?id=${selectedTopic.id}`, {
-      ...selectedTopic,
       desc: value,
     }).then(() => {
       onUpdated();

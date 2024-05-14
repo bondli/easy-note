@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Electron from '@common/electron';
+import ElectronBridge from '@common/electron';
 
 // 创建axios实例
 const service = axios.create({
@@ -12,13 +12,14 @@ service.interceptors.request.use(
   config => {
     // 可以在这里添加请求头部，例如token
     config.headers['X-From'] = 'Easy-Note-Client';
-    const loginData = Electron.getLoginData() || {};
+    const loginData = ElectronBridge.getLoginData() || {};
     config.headers['X-User-Id'] = loginData.id || 0;
     return config;
   },
   error => {
     // 请求错误处理
     console.log(error);
+    ElectronBridge.userLog(error);
     Promise.reject(error);
   }
 );
@@ -31,7 +32,7 @@ service.interceptors.response.use(
     return res;
   },
   error => {
-    console.log('err:', error); // for debug
+    ElectronBridge.userLog('err:', error);
     return Promise.reject(error);
   }
 );

@@ -25,6 +25,11 @@ contextBridge.exposeInMainWorld('electron', {
       ipcRenderer.send('deleteStore', key);
     },
 
+    // 采集日志
+    userLog(msg) {
+      ipcRenderer.send('userLog', msg);
+    },
+
     // 导出数据
     exportData() {
       ipcRenderer.send('export-data');
