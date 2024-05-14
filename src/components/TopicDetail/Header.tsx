@@ -1,5 +1,5 @@
 import React, { memo, useContext, useState } from 'react';
-import { CheckCircleOutlined, ClockCircleOutlined, DeleteOutlined, UndoOutlined, MoreOutlined, DragOutlined, RiseOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, PlayCircleOutlined, ClockCircleOutlined, DeleteOutlined, UndoOutlined, MoreOutlined, DragOutlined, RiseOutlined } from '@ant-design/icons';
 import { Button, Popover, Calendar, Modal, message, Select, Radio } from 'antd';
 import dayjs from 'dayjs';
 import { HEADER_HEIGHT, SPLIT_LINE } from '@/common/constant';
@@ -193,6 +193,26 @@ const Header: React.FC<HeaderProps> = (props) => {
     });
   };
 
+  // 重做代办
+  const updateFormDoneToUndo = () => {
+    userLog('Click FromdoneToUndo Topic: ', selectedTopic.id);
+    request.post(`/topic/update?id=${selectedTopic.id}&op=undo`, {
+      status: 'undo',
+    }).then(() => {
+      messageApi.open({
+        type: 'success',
+        content: '该代办事项已开启重做',
+      });
+      onUpdated(selectedTopic.id);
+    }).catch((err) => {
+      userLog('Logic FromdoneToUndo Topic Error: ', err);
+      messageApi.open({
+        type: 'error',
+        content: `重启代办失败：${err.message}`,
+      });
+    });
+  };
+
   // 删除代办
   const updateToDeleted = () => {
     userLog('Click Delete Topic: ', selectedTopic.id);
@@ -237,11 +257,11 @@ const Header: React.FC<HeaderProps> = (props) => {
     <div className={style.header} style={{ height: HEADER_HEIGHT, borderBottom: SPLIT_LINE}}>
       <div className={style.left}>
         {
-          // 完成代办事项
+          // 完成(重做)代办事项
           selectedTopic.status === 'undo' ? (
             <Button icon={<CheckCircleOutlined />} type="text" onClick={updateToDone}></Button>
           ) : (
-            <Button icon={<CheckCircleOutlined />} type="text" disabled></Button>
+            <Button icon={<PlayCircleOutlined />} type="text" onClick={updateFormDoneToUndo}></Button>
           )
         }
         {

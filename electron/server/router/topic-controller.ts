@@ -118,10 +118,10 @@ export const updateTopic = async (req: Request, res: Response) => {
     if (result) {
       await result.update({ title, desc, noteId, status, tags, priority, deadline });
       // 针对不同的操作类型，需要更新笔记本中的数量字段
-      if (op === 'done' || op === 'delete' || op === 'restore') {
+      if (op === 'done' || op === 'delete' || op === 'restore' || op === 'undo') {
         const operatorTopic = result.toJSON();
         let updateNumCommand = '';
-        if (op === 'restore') {
+        if (op === 'restore' || op === 'undo') {
           updateNumCommand = 'counts + 1';
         } else if (op === 'done' || op === 'delete') {
           updateNumCommand = 'counts - 1';
@@ -212,12 +212,15 @@ export const getTopicCounts = async(req: Request, res: Response) => {
         }
       },
     });
+    const today = new Date();
+    const todayAtMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
     const todayDeadline = await Topic.count({
       where: {
         userId,
         deadline: {
-          [Op.lt]: new Date(),
-          [Op.gt]: new Date(new Date().getMilliseconds() - 24 * 60 * 60 * 1000)
+          [Op.lt]: todayAtMidnight,
+          [Op.gt]: endOfToday,
         },
       }
     });
