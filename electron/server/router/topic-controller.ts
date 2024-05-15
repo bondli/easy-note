@@ -68,6 +68,7 @@ export const getTopics = async (req: Request, res: Response) => {
         [Op.gte]: todayAtMidnight,
         [Op.lte]: endOfToday,
       };
+      where['status'] = 'undo';
     }
     // 已删除
     else if (noteId === 'trash') {
@@ -221,6 +222,9 @@ export const getTopicCounts = async(req: Request, res: Response) => {
     const todayDeadline = await Topic.count({
       where: {
         userId,
+        status: {
+          [Op.eq]: 'undo'
+        },
         deadline: {
           [Op.gte]: todayAtMidnight,
           [Op.lte]: endOfToday,

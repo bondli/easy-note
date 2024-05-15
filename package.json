@@ -11,8 +11,6 @@
     "pack:win": "npm run build && npm run before:pack && electron-builder --win --ia32",
     "pack:mac": "npm run build && npm run before:pack && electron-builder --mac",
     "postinstall": "electron-builder install-app-deps",
-    "server": "npm run build && vite preview --host",
-    "server:pack": "npm run build && npm run before:pack && chcp 65001 | electron . prod",
     "lint": "npm run prettier && npm run eslint",
     "eslint": "eslint ./ --fix --ext .ts,.tsx,.js,.jsx",
     "prettier": "prettier --write ./**/*.{ts,tsx,js,jsx,html,css,scss,less}",

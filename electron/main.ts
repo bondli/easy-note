@@ -66,10 +66,10 @@ const initIpcRenderer = () => {
 // 定义ipcRenderer监听事件
 initIpcRenderer();
 
-let nodeServerStatus = false;
-
 // 启动服务器
+let serverStatus = '';
 const startNodeServer = () => {
+  logger.info('server will be start');
   const child = fork(path.join(__dirname,'./server/index'), [], {
     env: {
       ...process.env,
@@ -77,18 +77,16 @@ const startNodeServer = () => {
     },
   });
 
-  nodeServerStatus = true;
-
   child.on('error', (err) => {
-    logger.info("server error: spawn failed! (" + err + ")");
+    logger.info('server error:', err);
   });
 
-  child.on('data', (data) => {
+  child.on('message', (data) => {
     logger.info('server stdout: ' , data);
+    serverStatus = 'success';
   });
 
   child.on('exit', (code, signal) => {
-    nodeServerStatus = false;
     logger.info('server exit code: ', code);
     logger.info('server exit signal: ', signal);
   });
@@ -100,13 +98,12 @@ const startNodeServer = () => {
   });
 };
 
+startNodeServer();
+
 let mainWindow: any = null;
 
 const createWindow = () => {
-  // 不重复启动server
-  if (!nodeServerStatus) {
-    startNodeServer();
-  }
+  logger.info('main window will be create');
   mainWindow = new BrowserWindow({
     title: 'EasyNote',
     center: true,
@@ -123,12 +120,33 @@ const createWindow = () => {
       nodeIntegration: true, // 解决无法使用 require 加载的 bug
     },
   });
-  if (!app.isPackaged) {
-    mainWindow.loadURL('http://localhost:3000/');
-    mainWindow.webContents.openDevTools();
+  const openWin = () => {
+    if (!app.isPackaged) {
+      mainWindow.loadURL('http://localhost:3000/');
+      mainWindow.webContents.openDevTools();
+    } else {
+      mainWindow.loadFile('dist/index.html').catch(() => null);
+      mainWindow.setMenuBarVisibility(false); // 设置菜单栏不可见
+      mainWindow.menuBarVisible = false;
+    }
+    logger.info('main window has be showed');
+  };
+
+  // 服务起来之后再打开界面，否则出现加载不到数据，延迟100ms来检查
+  if (serverStatus === 'success') {
+    logger.info('server is startup before main window create');
+    openWin();
   } else {
-    mainWindow.loadFile('dist/index.html').catch(() => null);
-  }
+    let timer = 0;
+    const t = setInterval(() => {
+      timer ++;
+      if (serverStatus === 'success' || timer >= 50) { // 服务起来了，或者超过5s还没有起来，就不管了，结束轮询
+        openWin();
+        timer = 0;
+        clearInterval(t);
+      }
+    }, 100);
+  }  
 
   // 关闭 window 时触发下列事件
   mainWindow.on('closed', () => {
@@ -138,25 +156,19 @@ const createWindow = () => {
 
 // 绑定 ready 方法，当 electron 应用创建成功时，创建一个窗口。
 app.whenReady().then(() => {
-  globalShortcut.register('CommandOrControl+Alt+D', () => {
-    mainWindow.webContents.isDevToolsOpened()
-      ? mainWindow.webContents.closeDevTools()
-      : mainWindow.webContents.openDevTools();
-  });
+  logger.info('app is ready');
+  if (!app.isPackaged) {
+    globalShortcut.register('CommandOrControl+Alt+D', () => {
+      mainWindow.webContents.isDevToolsOpened()
+        ? mainWindow.webContents.closeDevTools()
+        : mainWindow.webContents.openDevTools();
+    });
+  }
 
   createWindow();
 
   if (!mainWindow.isFocused()) {
     mainWindow.focus();
-  }
-
-  mainWindow.setMenuBarVisibility(false); // 设置菜单栏不可见
-  mainWindow.menuBarVisible = false;
-  mainWindow.setAutoHideMenuBar(false);
-
-  // eslint-disable-next-line no-undef
-  if (process.platform != 'darwin') {
-    mainWindow.setIcon('dist/electron/icons/Icon.ico');
   }
 
   // 绑定 activate 方法，当 electron 应用激活时，创建一个窗口。这是为了点击关闭按钮之后从 dock 栏打开。

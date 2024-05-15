@@ -59,10 +59,6 @@ export default defineConfig(({ command, mode }) => {
         '@types': getPath('src/types'),
       },
     },
-    preview: {
-      // vite preview --port=9527 --host
-      port: 9527,
-    },
     server: {
       cors: true,
       // 在开发服务器启动时自动在浏览器中打开应用程序
@@ -70,17 +66,6 @@ export default defineConfig(({ command, mode }) => {
       hmr: true,
       host: true,
       port: 3000,
-      proxy: {
-        '^/api': {
-          target: 'http://192.168.120.88',
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, '/api/test/'),
-        },
-        '^/test/api/.*': {
-          target: 'http://192.168.120.88',
-          changeOrigin: true,
-        },
-      },
     },
     css: {
       modules: {

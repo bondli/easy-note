@@ -20,16 +20,17 @@ app.all('*', (req, res, next) => {
 (async () => {
   try {
     // 测试一下数据库是否能连上
-    sequelize.authenticate().then(() => {
-      logger.info('Connection has been established successfully.');
-    }).catch((err) => {
-      logger.error('Unable to connect to the database:', err);
-    });
+    await sequelize.authenticate();
+    logger.info('Connection has been established successfully.');
+
     // 启动服务器前同步所有模型
     await sequelize.sync();
+    
     // 启动服务器
     app.listen(5432, () => {
       logger.info('Server is running on port 5432');
+      // eslint-disable-next-line no-undef
+      process.send('Server Ready');
     });
   } catch (error) {
     logger.error('Error starting server:', error);
